@@ -1,0 +1,4509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daladan — Agricultural Supply Chain Platform</title>
+    <meta name="description"
+        content="Daladan connects producers, drivers, and retailers in a seamless agricultural supply chain platform." />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'agro-green': '#064E3B',
+                        'agro-green-light': '#065F46',
+                        'agro-green-lighter': '#047857',
+                        'harvest-amber': '#D97706',
+                        'harvest-amber-light': '#F59E0B',
+                        'harvest-amber-dark': '#B45309',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Google Fonts — Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <!-- Leaflet.js CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        /* ─── Design Tokens ─── */
+        :root {
+            --agro-green: #064E3B;
+            --agro-green-light: #065F46;
+            --agro-green-lighter: #047857;
+            --harvest-amber: #D97706;
+            --harvest-amber-light: #F59E0B;
+            --harvest-amber-dark: #B45309;
+
+            --surface-primary: #FFFFFF;
+            --surface-secondary: #F9FAFB;
+            --surface-tertiary: #F3F4F6;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--surface-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── Sticky Navbar ─── */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: linear-gradient(135deg, var(--agro-green) 0%, var(--agro-green-light) 100%);
+            box-shadow: 0 4px 20px rgba(6, 78, 59, 0.3);
+            backdrop-filter: blur(12px);
+        }
+
+        .navbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        /* ─── Logo ─── */
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--harvest-amber) 0%, var(--harvest-amber-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+            transition: transform var(--transition-base);
+        }
+
+        .logo-group:hover .logo-icon {
+            transform: scale(1.08) rotate(-4deg);
+        }
+
+        .logo-text {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text span {
+            color: var(--harvest-amber-light);
+        }
+
+        /* ─── Role Switcher ─── */
+        .role-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .role-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 9px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.835rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            color: rgba(255, 255, 255, 0.65);
+            background: transparent;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .role-btn i {
+            font-size: 0.95rem;
+            transition: transform var(--transition-base);
+        }
+
+        .role-btn:hover {
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .role-btn:hover i {
+            transform: translateY(-1px);
+        }
+
+        .role-btn.active {
+            background: linear-gradient(135deg, var(--harvest-amber) 0%, var(--harvest-amber-dark) 100%);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(217, 119, 6, 0.4);
+            font-weight: 600;
+        }
+
+        .role-btn.active i {
+            transform: scale(1.1);
+        }
+
+        /* Badge for messages */
+        .msg-badge {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            background: #EF4444;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.4);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+        }
+
+        /* ─── View Sections ─── */
+        .view-section {
+            display: none;
+            animation: viewFadeIn 0.35s ease-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes viewFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── View Content Placeholder Cards ─── */
+        .view-hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .view-header {
+            margin-bottom: 2rem;
+        }
+
+        .view-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .view-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-primary);
+            border-radius: 14px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 14px 14px 0 0;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        /* Accent colors per view */
+        .accent-green .stat-icon {
+            background: #ECFDF5;
+            color: var(--agro-green);
+        }
+
+        .accent-green::before {
+            background: linear-gradient(90deg, var(--agro-green), var(--agro-green-lighter));
+        }
+
+        .accent-amber .stat-icon {
+            background: #FFFBEB;
+            color: var(--harvest-amber);
+        }
+
+        .accent-amber::before {
+            background: linear-gradient(90deg, var(--harvest-amber), var(--harvest-amber-light));
+        }
+
+        .accent-blue .stat-icon {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .accent-blue::before {
+            background: linear-gradient(90deg, #2563EB, #3B82F6);
+        }
+
+        .accent-purple .stat-icon {
+            background: #F5F3FF;
+            color: #7C3AED;
+        }
+
+        .accent-purple::before {
+            background: linear-gradient(90deg, #7C3AED, #8B5CF6);
+        }
+
+        /* ─── Content Card ─── */
+        .content-card {
+            background: var(--surface-primary);
+            border-radius: 14px;
+            padding: 1.75rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .content-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .content-card-title {
+            font-size: 1.05rem;
+            font-weight: 650;
+            color: var(--text-primary);
+        }
+
+        .content-card-badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .placeholder-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--surface-tertiary);
+        }
+
+        .placeholder-row:last-child {
+            border-bottom: none;
+        }
+
+        .placeholder-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .placeholder-text {
+            flex: 1;
+        }
+
+        .placeholder-text .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .placeholder-text .desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .placeholder-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ─── Revenue Header ─── */
+        .revenue-header {
+            background: linear-gradient(135deg, var(--agro-green) 0%, #065F46 60%, #047857 100%);
+            border-radius: 18px;
+            padding: 2rem 2.25rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .revenue-header::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .revenue-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .revenue-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .revenue-label {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.4rem;
+        }
+
+        .revenue-amount {
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .revenue-amount .currency {
+            font-size: 1.5rem;
+            font-weight: 600;
+            opacity: 0.7;
+            margin-right: 2px;
+        }
+
+        .revenue-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6EE7B7;
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .revenue-sparkline {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 40px;
+            padding-top: 0.5rem;
+        }
+
+        .revenue-sparkline .bar {
+            width: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .revenue-sparkline .bar:hover {
+            background: var(--harvest-amber-light);
+        }
+
+        .revenue-stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .revenue-stat-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .revenue-stat-item .rs-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+
+        .revenue-stat-item .rs-label {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ─── Bozor Talabi (Market Needs) ─── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title .icon-bg {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .section-see-all {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--harvest-amber);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color var(--transition-base);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .section-see-all:hover {
+            color: var(--harvest-amber-dark);
+        }
+
+        .market-scroll-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .market-scroll {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 0.75rem;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .market-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .market-card {
+            min-width: 280px;
+            max-width: 300px;
+            background: var(--surface-primary);
+            border-radius: 14px;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .market-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--harvest-amber), var(--harvest-amber-light));
+        }
+
+        .market-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+            border-color: var(--harvest-amber-light);
+        }
+
+        .market-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.85rem;
+        }
+
+        .market-card-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .market-urgency {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .market-urgency.high {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .market-urgency.medium {
+            background: #FEF3C7;
+            color: var(--harvest-amber);
+        }
+
+        .market-urgency.low {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .market-card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .market-card-buyer {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .market-card-details {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .market-detail {
+            flex: 1;
+            background: var(--surface-secondary);
+            border-radius: 8px;
+            padding: 0.55rem 0.65rem;
+            text-align: center;
+        }
+
+        .market-detail .md-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .market-detail .md-label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .market-card-action {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 10px;
+            border: 1.5px solid var(--agro-green);
+            background: transparent;
+            color: var(--agro-green);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .market-card-action:hover {
+            background: var(--agro-green);
+            color: #fff;
+        }
+
+        /* ─── Inventory Cards ─── */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .inventory-card {
+            background: var(--surface-primary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .inventory-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .inv-card-img {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .inv-card-img .inv-badge-row {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            right: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .inv-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+        }
+
+        .inv-badge.organic {
+            background: rgba(6, 78, 59, 0.85);
+            color: #6EE7B7;
+        }
+
+        .inv-badge.batch {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+
+        .inv-card-body {
+            padding: 1.25rem;
+        }
+
+        .inv-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .inv-card-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .inv-quality {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--harvest-amber);
+        }
+
+        .inv-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .inv-meta {
+            text-align: center;
+            padding: 0.5rem;
+            background: var(--surface-secondary);
+            border-radius: 8px;
+        }
+
+        .inv-meta .im-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .inv-meta .im-label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .inv-card-actions {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .inv-btn {
+            flex: 1;
+            padding: 0.65rem;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            border: none;
+        }
+
+        .inv-btn-primary {
+            background: linear-gradient(135deg, var(--agro-green) 0%, var(--agro-green-lighter) 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(6, 78, 59, 0.25);
+        }
+
+        .inv-btn-primary:hover {
+            box-shadow: 0 4px 14px rgba(6, 78, 59, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .inv-btn-ai {
+            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .inv-btn-ai:hover {
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .inv-btn-ai.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .inv-btn-ai .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .inv-btn-ai.loading .spinner {
+            display: inline-block;
+        }
+
+        .inv-btn-ai.loading .btn-text {
+            display: none;
+        }
+
+        .inv-btn-ai.loading .loading-text {
+            display: inline;
+        }
+
+        .inv-btn-ai .loading-text {
+            display: none;
+        }
+
+        .inv-btn-ai.done {
+            background: linear-gradient(135deg, #059669, #10B981);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* AI Result */
+        .ai-result {
+            margin-top: 0.85rem;
+            padding: 0.85rem 1rem;
+            background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+            border: 1px solid #DDD6FE;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            color: #5B21B6;
+            line-height: 1.6;
+            display: none;
+            animation: resultSlideIn 0.4s ease-out;
+        }
+
+        .ai-result.visible {
+            display: block;
+        }
+
+        .ai-result-header {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #7C3AED;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        @keyframes resultSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── Driver Map ─── */
+        .driver-map-wrapper {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        #driver-map {
+            height: 420px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .map-floating-box {
+            position: absolute;
+            bottom: 1.25rem;
+            left: 1.25rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            min-width: 280px;
+            animation: floatBoxIn 0.4s ease-out;
+        }
+
+        @keyframes floatBoxIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .float-box-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .float-box-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #059669;
+            background: #ECFDF5;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .float-box-status .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        .float-box-title {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .float-box-destination {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .float-box-metrics {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .float-metric {
+            flex: 1;
+            background: var(--surface-secondary);
+            border-radius: 10px;
+            padding: 0.6rem 0.75rem;
+            text-align: center;
+        }
+
+        .float-metric .fm-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .float-metric .fm-label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .float-metric.highlight {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.08), rgba(4, 120, 87, 0.08));
+        }
+
+        .float-metric.highlight .fm-value {
+            color: var(--agro-green);
+        }
+
+        /* Map route labels */
+        .route-label {
+            background: var(--agro-green) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 4px 10px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.72rem !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 8px rgba(6, 78, 59, 0.3) !important;
+            white-space: nowrap !important;
+        }
+
+        .truck-marker-icon {
+            background: none;
+            border: none;
+        }
+
+        /* Driver stat cards row */
+        .driver-stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .driver-stat {
+            background: var(--surface-primary);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            transition: all var(--transition-base);
+        }
+
+        .driver-stat:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .driver-stat .ds-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .driver-stat .ds-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .driver-stat .ds-label {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* ─── Driver 2-Column Layout ─── */
+        .driver-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .driver-main {
+            min-width: 0;
+        }
+
+        /* ─── Pooling Engine Sidebar ─── */
+        .pooling-sidebar {
+            background: var(--surface-primary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            position: sticky;
+            top: 80px;
+        }
+
+        .pooling-header {
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            padding: 1.25rem 1.5rem;
+            color: #fff;
+        }
+
+        .pooling-header-top {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .pooling-header-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .pooling-header-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .pooling-header-sub {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 2.35rem;
+        }
+
+        .pooling-body {
+            padding: 1.25rem 1.5rem;
+        }
+
+        /* Greedy Bar */
+        .greedy-bar-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .greedy-bar-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .greedy-bar-label .capacity {
+            font-weight: 400;
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+        }
+
+        .greedy-bar {
+            width: 100%;
+            height: 28px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            background: var(--surface-tertiary);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .greedy-segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #fff;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .greedy-segment.apples {
+            background: linear-gradient(90deg, #DC2626, #EF4444);
+        }
+
+        .greedy-segment.onions {
+            background: linear-gradient(90deg, #D97706, #F59E0B);
+        }
+
+        .greedy-segment.empty {
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .greedy-legend {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .greedy-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .greedy-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        /* Pooling Stats */
+        .pooling-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .pooling-stat-card {
+            padding: 0.85rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+
+        .pooling-stat-card.profit {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            border-color: #A7F3D0;
+        }
+
+        .pooling-stat-card.co2 {
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            border-color: #BFDBFE;
+        }
+
+        .pooling-stat-card .ps-icon {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .pooling-stat-card .ps-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .pooling-stat-card .ps-label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* AI Advisor */
+        .ai-advisor-box {
+            background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+            border: 1px solid #DDD6FE;
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai-advisor-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #5B21B6;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .ai-advisor-content {
+            font-size: 0.8rem;
+            color: #6D28D9;
+            line-height: 1.55;
+            display: none;
+        }
+
+        .ai-advisor-content.visible {
+            display: block;
+            animation: resultSlideIn 0.4s ease-out;
+        }
+
+        .ai-advisor-suggestion {
+            background: rgba(124, 58, 237, 0.08);
+            border-radius: 8px;
+            padding: 0.7rem;
+            margin-top: 0.6rem;
+            border-left: 3px solid #7C3AED;
+        }
+
+        .ai-route-btn {
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+        }
+
+        .ai-route-btn:hover {
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .ai-route-btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .ai-route-btn .spinner {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .ai-route-btn.loading .spinner {
+            display: inline-block;
+        }
+
+        .ai-route-btn.loading .route-btn-text {
+            display: none;
+        }
+
+        .ai-route-btn.loading .route-btn-loading {
+            display: inline;
+        }
+
+        .ai-route-btn .route-btn-loading {
+            display: none;
+        }
+
+        .ai-route-btn.done {
+            background: linear-gradient(135deg, #059669, #10B981);
+        }
+
+        /* Greedy Explain Button */
+        .greedy-explain-btn {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 10px;
+            border: 1.5px solid #312E81;
+            background: transparent;
+            color: #312E81;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .greedy-explain-btn:hover {
+            background: #312E81;
+            color: #fff;
+        }
+
+        /* ─── Greedy Algo Modal ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: modalFadeIn 0.25s ease-out;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: var(--surface-primary);
+            border-radius: 18px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1E1B4B, #312E81);
+            padding: 1.5rem 1.75rem;
+            border-radius: 18px 18px 0 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .modal-header-left i {
+            font-size: 1.2rem;
+            color: #A78BFA;
+        }
+
+        .modal-header h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition-base);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 1.75rem;
+        }
+
+        .modal-body h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .modal-body p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 1.25rem;
+        }
+
+        .algo-step {
+            display: flex;
+            gap: 0.85rem;
+            margin-bottom: 1rem;
+            padding: 0.85rem;
+            background: var(--surface-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .algo-step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .algo-step-text {
+            flex: 1;
+        }
+
+        .algo-step-text strong {
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        .algo-step-text span {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .modal-code {
+            background: #1E1B4B;
+            color: #A5B4FC;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .modal-code .comment {
+            color: #6B7280;
+        }
+
+        .modal-code .keyword {
+            color: #C084FC;
+        }
+
+        .modal-code .string {
+            color: #34D399;
+        }
+
+        .modal-code .number {
+            color: #FCD34D;
+        }
+
+        /* ─── Retailer Marketplace ─── */
+        .bulk-request-cta {
+            border: 2px dashed var(--harvest-amber);
+            border-radius: 16px;
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.75rem;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.04), rgba(245, 158, 11, 0.06));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            transition: all var(--transition-base);
+        }
+
+        .bulk-request-cta:hover {
+            border-color: var(--harvest-amber-dark);
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.06), rgba(245, 158, 11, 0.1));
+        }
+
+        .bulk-cta-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bulk-cta-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--harvest-amber), var(--harvest-amber-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+
+        .bulk-cta-text h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .bulk-cta-text p {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .bulk-cta-btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--harvest-amber), var(--harvest-amber-dark));
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+        }
+
+        .bulk-cta-btn:hover {
+            box-shadow: 0 4px 16px rgba(217, 119, 6, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Search & Filter Bar */
+        .marketplace-search {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .search-input-wrap {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input-wrap i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .search-input-wrap input {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.6rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            background: var(--surface-primary);
+            color: var(--text-primary);
+            transition: border-color var(--transition-base);
+            outline: none;
+        }
+
+        .search-input-wrap input:focus {
+            border-color: var(--harvest-amber);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+
+        .search-select {
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            background: var(--surface-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            outline: none;
+            min-width: 140px;
+        }
+
+        .search-select:focus {
+            border-color: var(--harvest-amber);
+        }
+
+        /* Filter Pills */
+        .filter-pills {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: var(--surface-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .filter-pill:hover {
+            border-color: var(--harvest-amber);
+            color: var(--harvest-amber);
+        }
+
+        .filter-pill.active {
+            background: var(--harvest-amber);
+            border-color: var(--harvest-amber);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .product-card {
+            background: var(--surface-primary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .product-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+        }
+
+        .product-img-wrap {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover .product-img-wrap img {
+            transform: scale(1.08);
+        }
+
+        .product-img-badges {
+            position: absolute;
+            top: 0.65rem;
+            left: 0.65rem;
+            right: 0.65rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 2;
+        }
+
+        .product-region-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.55);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .product-organic-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            background: rgba(6, 78, 59, 0.85);
+            color: #6EE7B7;
+            backdrop-filter: blur(8px);
+        }
+
+        .product-card-body {
+            padding: 1.15rem;
+        }
+
+        .product-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .product-seller {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .verified-badge {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #2563EB;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .product-meta-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .product-meta-chip {
+            flex: 1;
+            text-align: center;
+            padding: 0.45rem;
+            border-radius: 8px;
+            background: var(--surface-secondary);
+        }
+
+        .product-meta-chip .pmc-value {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .product-meta-chip .pmc-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .product-card-footer {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .product-cart-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--agro-green), var(--agro-green-lighter));
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            box-shadow: 0 2px 8px rgba(6, 78, 59, 0.2);
+        }
+
+        .product-cart-btn:hover {
+            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .product-fav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--surface-primary);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .product-fav-btn:hover {
+            color: #EF4444;
+            border-color: #FCA5A5;
+            background: #FEF2F2;
+        }
+
+        /* ─── Messages Chat ─── */
+        .msg-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.25rem;
+            min-height: 560px;
+        }
+
+        /* Deal Groups Sidebar */
+        .deal-groups-panel {
+            background: var(--surface-primary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .deal-groups-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .deal-groups-header .dg-count {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #7C3AED;
+            color: #fff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .deal-groups-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .deal-group-item {
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .deal-group-item:hover {
+            background: var(--surface-secondary);
+        }
+
+        .deal-group-item.active {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.06), rgba(4, 120, 87, 0.06));
+            border-left: 3px solid var(--agro-green);
+        }
+
+        .dg-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .dg-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dg-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dg-preview {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dg-meta {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .dg-time {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .dg-unread {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #7C3AED;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+        }
+
+        /* Chat Panel */
+        .chat-panel {
+            background: var(--surface-primary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-primary);
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .chat-header-left h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .chat-header-left .chat-members {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        .chat-ai-summary-btn {
+            padding: 0.45rem 0.85rem;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
+        }
+
+        .chat-ai-summary-btn:hover {
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Chat Body */
+        .chat-body {
+            flex: 1;
+            padding: 1.25rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            background: var(--surface-secondary);
+            min-height: 380px;
+            max-height: 450px;
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 0.75rem 1rem;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            line-height: 1.55;
+            position: relative;
+            animation: bubbleIn 0.3s ease-out;
+        }
+
+        @keyframes bubbleIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-bubble .cb-sender {
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .chat-bubble .cb-time {
+            font-size: 0.65rem;
+            margin-top: 0.35rem;
+            opacity: 0.7;
+        }
+
+        /* Seller bubbles — Green */
+        .chat-bubble.seller {
+            background: linear-gradient(135deg, #064E3B, #065F46);
+            color: #D1FAE5;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble.seller .cb-sender {
+            color: #6EE7B7;
+        }
+
+        /* Buyer bubbles — Amber */
+        .chat-bubble.buyer {
+            background: linear-gradient(135deg, #92400E, #B45309);
+            color: #FEF3C7;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble.buyer .cb-sender {
+            color: #FCD34D;
+        }
+
+        /* Driver bubbles — Dark */
+        .chat-bubble.driver {
+            background: linear-gradient(135deg, #1F2937, #374151);
+            color: #E5E7EB;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble.driver .cb-sender {
+            color: #93C5FD;
+        }
+
+        /* System message */
+        .chat-system-msg {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            padding: 0.25rem 0;
+        }
+
+        .chat-system-msg span {
+            background: var(--surface-primary);
+            padding: 0.2rem 0.65rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Chat Input */
+        .chat-input-bar {
+            padding: 0.85rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: var(--surface-primary);
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color var(--transition-base);
+        }
+
+        .chat-input-bar input:focus {
+            border-color: var(--agro-green);
+            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+        }
+
+        .chat-send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--agro-green), var(--agro-green-lighter));
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover {
+            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* ─── Custom Scrollbar ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6, 78, 59, 0.15);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 78, 59, 0.3);
+        }
+
+        /* Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(6, 78, 59, 0.15) transparent;
+        }
+
+        /* ─── Toast Notifications ─── */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 0.6rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            pointer-events: auto;
+            background: var(--surface-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.85rem 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            min-width: 280px;
+            max-width: 420px;
+            animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .toast.dismissing {
+            animation: toastSlideOut 0.3s ease-in forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(10px) scale(0.95);
+            }
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .toast.info .toast-icon {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .toast.warning .toast-icon {
+            background: #FFFBEB;
+            color: #D97706;
+        }
+
+        .toast.ai .toast-icon {
+            background: #F5F3FF;
+            color: #7C3AED;
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            border-radius: 0 0 12px 12px;
+            animation: toastProgress linear forwards;
+        }
+
+        .toast.success .toast-progress {
+            background: #059669;
+        }
+
+        .toast.info .toast-progress {
+            background: #2563EB;
+        }
+
+        .toast.warning .toast-progress {
+            background: #D97706;
+        }
+
+        .toast.ai .toast-progress {
+            background: #7C3AED;
+        }
+
+        @keyframes toastProgress {
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .navbar-inner {
+                flex-direction: column;
+                height: auto;
+                padding: 0.75rem 1rem;
+                gap: 0.65rem;
+            }
+
+            .role-switcher {
+                width: 100%;
+                justify-content: center;
+                overflow-x: auto;
+            }
+
+            .role-btn {
+                padding: 0.45rem 0.7rem;
+                font-size: 0.78rem;
+            }
+
+            .role-btn .btn-label {
+                display: none;
+            }
+
+            .view-title {
+                font-size: 1.5rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .revenue-stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .revenue-amount {
+                font-size: 2rem;
+            }
+
+            .inventory-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .driver-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .pooling-sidebar {
+                position: static;
+            }
+
+            .msg-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .deal-groups-panel {
+                max-height: 220px;
+            }
+
+            .chat-body {
+                min-height: 320px;
+                max-height: 400px;
+            }
+
+            #driver-map {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .market-card {
+                min-width: 260px;
+            }
+
+            .inv-card-actions {
+                flex-direction: column;
+            }
+
+            .driver-stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            #driver-map {
+                height: 300px;
+            }
+
+            .map-floating-box {
+                left: 0.75rem;
+                bottom: 0.75rem;
+                min-width: 220px;
+                padding: 1rem;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .msg-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .deal-groups-panel {
+                max-height: 200px;
+            }
+
+            .chat-body {
+                min-height: 300px;
+            }
+
+            .marketplace-search {
+                flex-direction: column;
+            }
+
+            .bulk-request-cta {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .bulk-cta-left {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .float-box-metrics {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ═══════════════════ STICKY NAVBAR ═══════════════════ -->
+    <nav class="navbar" id="main-navbar">
+        <div class="navbar-inner">
+            <!-- Logo -->
+            <a href="#" class="logo-group">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div class="logo-text">Dala<span>dan</span></div>
+            </a>
+
+            <!-- Role Switcher -->
+            <div class="role-switcher" id="role-switcher">
+                <button class="role-btn active" id="btn-producer" onclick="switchView('producer')"
+                    aria-label="Producer View">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                    <span class="btn-label">Producer</span>
+                </button>
+                <button class="role-btn" id="btn-driver" onclick="switchView('driver')" aria-label="Driver View">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span class="btn-label">Driver</span>
+                </button>
+                <button class="role-btn" id="btn-retailer" onclick="switchView('retailer')" aria-label="Retailer View">
+                    <i class="fa-solid fa-store"></i>
+                    <span class="btn-label">Retailer</span>
+                </button>
+                <button class="role-btn" id="btn-messages" onclick="switchView('messages')" aria-label="Messages View"
+                    style="position:relative;">
+                    <i class="fa-solid fa-comments"></i>
+                    <span class="btn-label">Messages</span>
+                    <span class="msg-badge">3</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════ PRODUCER VIEW ═══════════════════ -->
+    <main class="view-section active" id="view-producer">
+        <div class="view-hero">
+            <div class="view-header">
+                <h1 class="view-title">🌾 Mening Maydonim</h1>
+                <p class="view-subtitle">Track your harvests, manage inventory, and connect with market demand in
+                    real-time.</p>
+            </div>
+
+            <!-- ── Revenue Header ── -->
+            <div class="revenue-header">
+                <div class="revenue-top">
+                    <div>
+                        <div class="revenue-label">Total Revenue (Season)</div>
+                        <div class="revenue-amount"><span class="currency">$</span>127,450</div>
+                        <div class="revenue-change">
+                            <i class="fa-solid fa-arrow-trend-up" style="font-size:0.7rem;"></i>
+                            +18.3% vs last season
+                        </div>
+                    </div>
+                    <div class="revenue-sparkline">
+                        <div class="bar" style="height:35%;"></div>
+                        <div class="bar" style="height:50%;"></div>
+                        <div class="bar" style="height:40%;"></div>
+                        <div class="bar" style="height:65%;"></div>
+                        <div class="bar" style="height:55%;"></div>
+                        <div class="bar" style="height:80%;"></div>
+                        <div class="bar" style="height:70%;"></div>
+                        <div class="bar" style="height:90%;"></div>
+                        <div class="bar" style="height:75%;"></div>
+                        <div class="bar" style="height:100%; background:var(--harvest-amber-light);"></div>
+                    </div>
+                </div>
+                <div class="revenue-stats-row">
+                    <div class="revenue-stat-item">
+                        <div class="rs-value">$34,250</div>
+                        <div class="rs-label">This Month</div>
+                    </div>
+                    <div class="revenue-stat-item">
+                        <div class="rs-value">28</div>
+                        <div class="rs-label">Active Orders</div>
+                    </div>
+                    <div class="revenue-stat-item">
+                        <div class="rs-value">12,480 kg</div>
+                        <div class="rs-label">Total Inventory</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Bozor Talabi (Market Needs) ── -->
+            <div class="market-scroll-wrapper">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="icon-bg" style="background:#FFFBEB;color:var(--harvest-amber);">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                        </span>
+                        Bozor Talabi
+                        <span style="font-size:0.78rem;font-weight:400;color:var(--text-secondary);">(Market
+                            Needs)</span>
+                    </div>
+                    <button class="section-see-all">
+                        Hammasini ko'rish <i class="fa-solid fa-arrow-right" style="font-size:0.7rem;"></i>
+                    </button>
+                </div>
+
+                <div class="market-scroll" id="market-scroll">
+                    <!-- Card 1: Carrots for Korzinka -->
+                    <div class="market-card">
+                        <div class="market-card-top">
+                            <div class="market-card-icon" style="background:#FEF3C7;color:#D97706;">🥕</div>
+                            <span class="market-urgency high"><i class="fa-solid fa-bolt" style="font-size:0.6rem;"></i>
+                                Urgent</span>
+                        </div>
+                        <div class="market-card-name">Fresh Carrots</div>
+                        <div class="market-card-buyer"><i class="fa-solid fa-store" style="font-size:0.7rem;"></i>
+                            Korzinka Supermarket</div>
+                        <div class="market-card-details">
+                            <div class="market-detail">
+                                <div class="md-value">5,000 kg</div>
+                                <div class="md-label">Quantity</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">$2.40/kg</div>
+                                <div class="md-label">Price</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">Mar 3</div>
+                                <div class="md-label">Deadline</div>
+                            </div>
+                        </div>
+                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                    </div>
+
+                    <!-- Card 2: Tomatoes for Makro -->
+                    <div class="market-card">
+                        <div class="market-card-top">
+                            <div class="market-card-icon" style="background:#FEE2E2;color:#DC2626;">🍅</div>
+                            <span class="market-urgency medium">Medium</span>
+                        </div>
+                        <div class="market-card-name">Organic Tomatoes</div>
+                        <div class="market-card-buyer"><i class="fa-solid fa-store" style="font-size:0.7rem;"></i> Makro
+                            Wholesale</div>
+                        <div class="market-card-details">
+                            <div class="market-detail">
+                                <div class="md-value">3,200 kg</div>
+                                <div class="md-label">Quantity</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">$3.10/kg</div>
+                                <div class="md-label">Price</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">Mar 7</div>
+                                <div class="md-label">Deadline</div>
+                            </div>
+                        </div>
+                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                    </div>
+
+                    <!-- Card 3: Apples for haqdor.uz -->
+                    <div class="market-card">
+                        <div class="market-card-top">
+                            <div class="market-card-icon" style="background:#ECFDF5;color:#059669;">🍎</div>
+                            <span class="market-urgency low">Flexible</span>
+                        </div>
+                        <div class="market-card-name">Red Apples — Grade A</div>
+                        <div class="market-card-buyer"><i class="fa-solid fa-globe" style="font-size:0.7rem;"></i>
+                            haqdor.uz Marketplace</div>
+                        <div class="market-card-details">
+                            <div class="market-detail">
+                                <div class="md-value">2,000 kg</div>
+                                <div class="md-label">Quantity</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">$4.50/kg</div>
+                                <div class="md-label">Price</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">Mar 15</div>
+                                <div class="md-label">Deadline</div>
+                            </div>
+                        </div>
+                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                    </div>
+
+                    <!-- Card 4: Onions for Baraka -->
+                    <div class="market-card">
+                        <div class="market-card-top">
+                            <div class="market-card-icon" style="background:#FEF9C3;color:#A16207;">🧅</div>
+                            <span class="market-urgency high"><i class="fa-solid fa-bolt" style="font-size:0.6rem;"></i>
+                                Urgent</span>
+                        </div>
+                        <div class="market-card-name">Yellow Onions</div>
+                        <div class="market-card-buyer"><i class="fa-solid fa-store" style="font-size:0.7rem;"></i>
+                            Baraka Fresh Market</div>
+                        <div class="market-card-details">
+                            <div class="market-detail">
+                                <div class="md-value">8,000 kg</div>
+                                <div class="md-label">Quantity</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">$1.80/kg</div>
+                                <div class="md-label">Price</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">Mar 1</div>
+                                <div class="md-label">Deadline</div>
+                            </div>
+                        </div>
+                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                    </div>
+
+                    <!-- Card 5: Cucumbers for Metro -->
+                    <div class="market-card">
+                        <div class="market-card-top">
+                            <div class="market-card-icon" style="background:#ECFDF5;color:#059669;">🥒</div>
+                            <span class="market-urgency medium">Medium</span>
+                        </div>
+                        <div class="market-card-name">Persian Cucumbers</div>
+                        <div class="market-card-buyer"><i class="fa-solid fa-store" style="font-size:0.7rem;"></i> Metro
+                            Cash & Carry</div>
+                        <div class="market-card-details">
+                            <div class="market-detail">
+                                <div class="md-value">1,500 kg</div>
+                                <div class="md-label">Quantity</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">$2.90/kg</div>
+                                <div class="md-label">Price</div>
+                            </div>
+                            <div class="market-detail">
+                                <div class="md-value">Mar 10</div>
+                                <div class="md-label">Deadline</div>
+                            </div>
+                        </div>
+                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Inventory Section ── -->
+            <div class="section-header">
+                <div class="section-title">
+                    <span class="icon-bg" style="background:#ECFDF5;color:var(--agro-green);">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </span>
+                    Inventory
+                    <span style="font-size:0.78rem;font-weight:400;color:var(--text-secondary);">(2 Batches)</span>
+                </div>
+                <button class="section-see-all">
+                    Manage All <i class="fa-solid fa-arrow-right" style="font-size:0.7rem;"></i>
+                </button>
+            </div>
+
+            <div class="inventory-grid">
+                <!-- Inventory Card 1: Apples -->
+                <div class="inventory-card" id="inv-card-apples">
+                    <div class="inv-card-img"
+                        style="background-image:url('https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600&h=300&fit=crop');">
+                        <div class="inv-badge-row">
+                            <span class="inv-badge organic"><i class="fa-solid fa-leaf" style="font-size:0.6rem;"></i>
+                                Organic</span>
+                            <span class="inv-badge batch">Batch #1041</span>
+                        </div>
+                    </div>
+                    <div class="inv-card-body">
+                        <div class="inv-card-head">
+                            <span class="inv-card-name">Red Apples — Grade A</span>
+                            <span class="inv-quality"><i class="fa-solid fa-star"></i> 4.8</span>
+                        </div>
+                        <div class="inv-meta-grid">
+                            <div class="inv-meta">
+                                <div class="im-value">1,800 kg</div>
+                                <div class="im-label">In Stock</div>
+                            </div>
+                            <div class="inv-meta">
+                                <div class="im-value">$4.50/kg</div>
+                                <div class="im-label">Price</div>
+                            </div>
+                            <div class="inv-meta">
+                                <div class="im-value">Feb 23</div>
+                                <div class="im-label">Harvested</div>
+                            </div>
+                        </div>
+                        <div class="inv-card-actions">
+                            <button class="inv-btn inv-btn-primary"><i class="fa-solid fa-paper-plane"></i> Ship
+                                Now</button>
+                            <button class="inv-btn inv-btn-ai" id="ai-btn-apples" onclick="aiOptimize('apples')">
+                                <span class="spinner"></span>
+                                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> AI
+                                    Optimize</span>
+                                <span class="loading-text">Generating…</span>
+                            </button>
+                        </div>
+                        <div class="ai-result" id="ai-result-apples"></div>
+                    </div>
+                </div>
+
+                <!-- Inventory Card 2: Tomatoes -->
+                <div class="inventory-card" id="inv-card-tomatoes">
+                    <div class="inv-card-img"
+                        style="background-image:url('https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=300&fit=crop');">
+                        <div class="inv-badge-row">
+                            <span class="inv-badge organic"><i class="fa-solid fa-leaf" style="font-size:0.6rem;"></i>
+                                Organic</span>
+                            <span class="inv-badge batch">Batch #1043</span>
+                        </div>
+                    </div>
+                    <div class="inv-card-body">
+                        <div class="inv-card-head">
+                            <span class="inv-card-name">Cherry Tomatoes</span>
+                            <span class="inv-quality"><i class="fa-solid fa-star"></i> 4.9</span>
+                        </div>
+                        <div class="inv-meta-grid">
+                            <div class="inv-meta">
+                                <div class="im-value">2,400 kg</div>
+                                <div class="im-label">In Stock</div>
+                            </div>
+                            <div class="inv-meta">
+                                <div class="im-value">$3.10/kg</div>
+                                <div class="im-label">Price</div>
+                            </div>
+                            <div class="inv-meta">
+                                <div class="im-value">Feb 26</div>
+                                <div class="im-label">Harvested</div>
+                            </div>
+                        </div>
+                        <div class="inv-card-actions">
+                            <button class="inv-btn inv-btn-primary"><i class="fa-solid fa-paper-plane"></i> Ship
+                                Now</button>
+                            <button class="inv-btn inv-btn-ai" id="ai-btn-tomatoes" onclick="aiOptimize('tomatoes')">
+                                <span class="spinner"></span>
+                                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> AI
+                                    Optimize</span>
+                                <span class="loading-text">Generating…</span>
+                            </button>
+                        </div>
+                        <div class="ai-result" id="ai-result-tomatoes"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ═══════════════════ DRIVER VIEW ═══════════════════ -->
+    <main class="view-section" id="view-driver">
+        <div class="view-hero">
+            <div class="view-header">
+                <h1 class="view-title">🚛 Haydovchi Paneli</h1>
+                <p class="view-subtitle">Track your active route, monitor deliveries in real-time, and stay ahead of
+                    your schedule.</p>
+            </div>
+
+            <!-- Driver Stats Row -->
+            <div class="driver-stats-row">
+                <div class="driver-stat">
+                    <div class="ds-icon" style="background:#DBEAFE;color:#2563EB;"><i class="fa-solid fa-route"></i>
+                    </div>
+                    <div>
+                        <div class="ds-value">3</div>
+                        <div class="ds-label">Active Routes</div>
+                    </div>
+                </div>
+                <div class="driver-stat">
+                    <div class="ds-icon" style="background:#ECFDF5;color:#059669;"><i
+                            class="fa-solid fa-circle-check"></i></div>
+                    <div>
+                        <div class="ds-value">12</div>
+                        <div class="ds-label">Deliveries Today</div>
+                    </div>
+                </div>
+                <div class="driver-stat">
+                    <div class="ds-icon" style="background:#FFFBEB;color:var(--harvest-amber);"><i
+                            class="fa-solid fa-gas-pump"></i></div>
+                    <div>
+                        <div class="ds-value">$1,240</div>
+                        <div class="ds-label">Fuel (MTD)</div>
+                    </div>
+                </div>
+                <div class="driver-stat">
+                    <div class="ds-icon" style="background:#FEF3C7;color:var(--harvest-amber);"><i
+                            class="fa-solid fa-star"></i></div>
+                    <div>
+                        <div class="ds-value">4.9</div>
+                        <div class="ds-label">Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div class="driver-map-wrapper">
+                <div id="driver-map"></div>
+
+                <!-- Floating Info Box -->
+                <div class="map-floating-box">
+                    <div class="float-box-header">
+                        <div class="float-box-status">
+                            <span class="pulse-dot"></span>
+                            Live Tracking
+                        </div>
+                        <span class="float-box-title">Namangan → Tashkent</span>
+                    </div>
+                    <div class="float-box-destination">
+                        <i class="fa-solid fa-location-dot" style="color:#DC2626;"></i>
+                        Chorsu Market
+                    </div>
+                    <div class="float-box-metrics">
+                        <div class="float-metric highlight">
+                            <div class="fm-value">12.4 km</div>
+                            <div class="fm-label">Distance</div>
+                        </div>
+                        <div class="float-metric">
+                            <div class="fm-value">18 min</div>
+                            <div class="fm-label">ETA</div>
+                        </div>
+                        <div class="float-metric">
+                            <div class="fm-value">42 km/h</div>
+                            <div class="fm-label">Speed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2-Column Layout: Map+Deliveries + Pooling Sidebar -->
+            <div class="driver-layout">
+                <div class="driver-main">
+                    <!-- Delivery List -->
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <span class="content-card-title"><i class="fa-solid fa-map-location-dot"
+                                    style="color:#2563EB;margin-right:0.5rem;"></i>Today's Deliveries</span>
+                            <span class="content-card-badge" style="background:#EFF6FF;color:#2563EB;">3 Stops</span>
+                        </div>
+                        <div class="placeholder-row">
+                            <div class="placeholder-avatar" style="background:#ECFDF5;color:#059669;"><i
+                                    class="fa-solid fa-circle-check"></i></div>
+                            <div class="placeholder-text">
+                                <div class="name">Stop 1 — Namangan Warehouse</div>
+                                <div class="desc">Picked up 2,400 kg · Departed 6:30 AM</div>
+                            </div>
+                            <span class="placeholder-status" style="background:#ECFDF5;color:#059669;">Completed</span>
+                        </div>
+                        <div class="placeholder-row">
+                            <div class="placeholder-avatar" style="background:#DBEAFE;color:#2563EB;"><i
+                                    class="fa-solid fa-truck-fast"></i></div>
+                            <div class="placeholder-text">
+                                <div class="name">Stop 2 — Chorsu Market, Tashkent</div>
+                                <div class="desc">1,500 kg produce · ETA 18 min · 12.4 km remaining</div>
+                            </div>
+                            <span class="placeholder-status" style="background:#DBEAFE;color:#2563EB;">In Transit</span>
+                        </div>
+                        <div class="placeholder-row">
+                            <div class="placeholder-avatar" style="background:#F3F4F6;color:var(--text-secondary);"><i
+                                    class="fa-solid fa-clock"></i></div>
+                            <div class="placeholder-text">
+                                <div class="name">Stop 3 — Sergeli Depot, Tashkent</div>
+                                <div class="desc">900 kg produce · Scheduled 2:00 PM</div>
+                            </div>
+                            <span class="placeholder-status"
+                                style="background:#F3F4F6;color:var(--text-secondary);">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Intelligent Pooling Engine Sidebar ═══ -->
+                <aside class="pooling-sidebar">
+                    <div class="pooling-header">
+                        <div class="pooling-header-top">
+                            <div class="pooling-header-icon"><i class="fa-solid fa-microchip"></i></div>
+                            <span class="pooling-header-title">Pooling Engine</span>
+                        </div>
+                        <div class="pooling-header-sub">Intelligent Load Optimization</div>
+                    </div>
+                    <div class="pooling-body">
+
+                        <!-- Greedy Bar -->
+                        <div class="greedy-bar-section">
+                            <div class="greedy-bar-label">
+                                <span>Truck Capacity</span>
+                                <span class="capacity">1,920 / 2,400 kg</span>
+                            </div>
+                            <div class="greedy-bar">
+                                <div class="greedy-segment apples" style="width:50%;">🍎 Apples</div>
+                                <div class="greedy-segment onions" style="width:30%;">🧅 Onions</div>
+                                <div class="greedy-segment empty" style="width:20%;">Empty</div>
+                            </div>
+                            <div class="greedy-legend">
+                                <div class="greedy-legend-item">
+                                    <div class="greedy-legend-dot" style="background:#EF4444;"></div>
+                                    Apples — 1,200 kg
+                                </div>
+                                <div class="greedy-legend-item">
+                                    <div class="greedy-legend-dot" style="background:#F59E0B;"></div>
+                                    Onions — 720 kg
+                                </div>
+                                <div class="greedy-legend-item">
+                                    <div class="greedy-legend-dot" style="background:#D1D5DB;"></div>
+                                    Empty — 480 kg
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pooling Stats -->
+                        <div class="pooling-stats">
+                            <div class="pooling-stat-card profit">
+                                <div class="ps-icon">💰</div>
+                                <div class="ps-value" style="color:#059669;">+$340</div>
+                                <div class="ps-label">Profit Boost</div>
+                            </div>
+                            <div class="pooling-stat-card co2">
+                                <div class="ps-icon">🌿</div>
+                                <div class="ps-value" style="color:#2563EB;">-12.6 kg</div>
+                                <div class="ps-label">CO₂ Saved</div>
+                            </div>
+                        </div>
+
+                        <!-- AI Advisor -->
+                        <div class="ai-advisor-box">
+                            <div class="ai-advisor-title">
+                                <i class="fa-solid fa-robot"></i> AI Route Advisor
+                            </div>
+                            <div class="ai-advisor-content" id="ai-advisor-result"></div>
+                            <button class="ai-route-btn" id="ai-route-btn" onclick="updateRouteIntelligence()">
+                                <span class="spinner"></span>
+                                <span class="route-btn-text"><i class="fa-solid fa-satellite-dish"></i> Update Route
+                                    Intelligence</span>
+                                <span class="route-btn-loading">Analyzing routes…</span>
+                            </button>
+                        </div>
+
+                        <!-- Explain Greedy Algo -->
+                        <button class="greedy-explain-btn" onclick="openGreedyModal()">
+                            <i class="fa-solid fa-graduation-cap"></i> Explain Greedy Algorithm
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════ RETAILER VIEW ═══════════════════ -->
+    <main class="view-section" id="view-retailer">
+        <div class="view-hero">
+            <div class="view-header">
+                <h1 class="view-title">🛒 Fresh Direct Marketplace</h1>
+                <p class="view-subtitle">Discover premium produce from verified farms. Post bulk requests or browse the
+                    freshest inventory.</p>
+            </div>
+
+            <!-- Post Bulk Request CTA -->
+            <div class="bulk-request-cta">
+                <div class="bulk-cta-left">
+                    <div class="bulk-cta-icon"><i class="fa-solid fa-bullhorn"></i></div>
+                    <div class="bulk-cta-text">
+                        <h3>Post a Bulk Request</h3>
+                        <p>Let farmers know what you need — get competitive quotes from verified producers across
+                            Uzbekistan.</p>
+                    </div>
+                </div>
+                <button class="bulk-cta-btn" onclick="showToast('Bulk request form coming soon!','info')"><i
+                        class="fa-solid fa-plus"></i> Post Request</button>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="marketplace-search">
+                <div class="search-input-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search produce, farms, or regions…" id="marketplace-search-input"
+                        oninput="filterMarketplace()" />
+                </div>
+                <select class="search-select" id="marketplace-sort">
+                    <option>Sort: Newest</option>
+                    <option>Price: Low → High</option>
+                    <option>Price: High → Low</option>
+                    <option>Min Order</option>
+                    <option>Rating</option>
+                </select>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="filter-pills">
+                <button class="filter-pill active" data-category="all" onclick="activateFilter(this)">All
+                    Products</button>
+                <button class="filter-pill" data-category="fruits" onclick="activateFilter(this)">🍎 Fruits</button>
+                <button class="filter-pill" data-category="vegetables" onclick="activateFilter(this)">🥦
+                    Vegetables</button>
+                <button class="filter-pill" data-category="grains" onclick="activateFilter(this)">🌾 Grains</button>
+                <button class="filter-pill" data-category="root-crops" onclick="activateFilter(this)">🧅 Root
+                    Crops</button>
+                <button class="filter-pill" data-category="spices" onclick="activateFilter(this)">🌶️ Spices</button>
+                <button class="filter-pill" data-category="nuts" onclick="activateFilter(this)">🥜 Nuts</button>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="product-grid">
+                <!-- Product 1: Golden Apples -->
+                <div class="product-card" data-name="Golden Apples Premium" data-category="fruits">
+                    <div class="product-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?w=500&h=350&fit=crop"
+                            alt="Golden Apples" loading="lazy" />
+                        <div class="product-img-badges">
+                            <span class="product-region-tag"><i class="fa-solid fa-location-dot"
+                                    style="font-size:0.55rem;"></i> Namangan</span>
+                            <span class="product-organic-tag"><i class="fa-solid fa-leaf" style="font-size:0.5rem;"></i>
+                                Organic</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-name">Golden Apples — Premium</div>
+                        <div class="product-seller">
+                            <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                            Namangan Valley Farms
+                        </div>
+                        <div class="product-meta-row">
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">$3.80/kg</div>
+                                <div class="pmc-label">Price</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">500 kg</div>
+                                <div class="pmc-label">Min Order</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">⭐ 4.9</div>
+                                <div class="pmc-label">Rating</div>
+                            </div>
+                        </div>
+                        <div class="product-card-footer">
+                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                                    class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                            <button class="product-fav-btn"
+                                onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
+                                    class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2: Red Onions -->
+                <div class="product-card" data-name="Red Onions Grade A" data-category="root-crops">
+                    <div class="product-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=500&h=350&fit=crop"
+                            alt="Red Onions" loading="lazy" />
+                        <div class="product-img-badges">
+                            <span class="product-region-tag"><i class="fa-solid fa-location-dot"
+                                    style="font-size:0.55rem;"></i> Samarkand</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-name">Red Onions — Grade A</div>
+                        <div class="product-seller">
+                            <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                            Samarkand Agro Co.
+                        </div>
+                        <div class="product-meta-row">
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">$1.60/kg</div>
+                                <div class="pmc-label">Price</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">1,000 kg</div>
+                                <div class="pmc-label">Min Order</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">⭐ 4.7</div>
+                                <div class="pmc-label">Rating</div>
+                            </div>
+                        </div>
+                        <div class="product-card-footer">
+                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                                    class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                            <button class="product-fav-btn"
+                                onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
+                                    class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3: Cherry Tomatoes -->
+                <div class="product-card" data-name="Cherry Tomatoes Vine" data-category="vegetables">
+                    <div class="product-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&h=350&fit=crop"
+                            alt="Cherry Tomatoes" loading="lazy" />
+                        <div class="product-img-badges">
+                            <span class="product-region-tag"><i class="fa-solid fa-location-dot"
+                                    style="font-size:0.55rem;"></i> Tashkent</span>
+                            <span class="product-organic-tag"><i class="fa-solid fa-leaf" style="font-size:0.5rem;"></i>
+                                Organic</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-name">Cherry Tomatoes — Vine</div>
+                        <div class="product-seller">
+                            <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                            Green Valley Greenhouses
+                        </div>
+                        <div class="product-meta-row">
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">$3.10/kg</div>
+                                <div class="pmc-label">Price</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">300 kg</div>
+                                <div class="pmc-label">Min Order</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">⭐ 5.0</div>
+                                <div class="pmc-label">Rating</div>
+                            </div>
+                        </div>
+                        <div class="product-card-footer">
+                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                                    class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                            <button class="product-fav-btn"
+                                onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
+                                    class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4: Fresh Carrots -->
+                <div class="product-card" data-name="Fresh Carrots Sweet" data-category="root-crops">
+                    <div class="product-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&h=350&fit=crop"
+                            alt="Fresh Carrots" loading="lazy" />
+                        <div class="product-img-badges">
+                            <span class="product-region-tag"><i class="fa-solid fa-location-dot"
+                                    style="font-size:0.55rem;"></i> Fergana</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-name">Fresh Carrots — Sweet</div>
+                        <div class="product-seller">
+                            <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                            Fergana Organic Farm
+                        </div>
+                        <div class="product-meta-row">
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">$2.40/kg</div>
+                                <div class="pmc-label">Price</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">800 kg</div>
+                                <div class="pmc-label">Min Order</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">⭐ 4.6</div>
+                                <div class="pmc-label">Rating</div>
+                            </div>
+                        </div>
+                        <div class="product-card-footer">
+                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                                    class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                            <button class="product-fav-btn"
+                                onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
+                                    class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 5: Persian Cucumbers -->
+                <div class="product-card" data-name="Persian Cucumbers" data-category="vegetables">
+                    <div class="product-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=500&h=350&fit=crop"
+                            alt="Cucumbers" loading="lazy" />
+                        <div class="product-img-badges">
+                            <span class="product-region-tag"><i class="fa-solid fa-location-dot"
+                                    style="font-size:0.55rem;"></i> Bukhara</span>
+                            <span class="product-organic-tag"><i class="fa-solid fa-leaf" style="font-size:0.5rem;"></i>
+                                Organic</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-name">Persian Cucumbers</div>
+                        <div class="product-seller">
+                            <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                            Bukhara Fields Ltd.
+                        </div>
+                        <div class="product-meta-row">
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">$2.90/kg</div>
+                                <div class="pmc-label">Price</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">400 kg</div>
+                                <div class="pmc-label">Min Order</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">⭐ 4.8</div>
+                                <div class="pmc-label">Rating</div>
+                            </div>
+                        </div>
+                        <div class="product-card-footer">
+                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                                    class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                            <button class="product-fav-btn"
+                                onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
+                                    class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 6: Organic Pomegranates -->
+                <div class="product-card" data-name="Organic Pomegranates" data-category="fruits">
+                    <div class="product-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&h=350&fit=crop"
+                            alt="Pomegranates" loading="lazy" />
+                        <div class="product-img-badges">
+                            <span class="product-region-tag"><i class="fa-solid fa-location-dot"
+                                    style="font-size:0.55rem;"></i> Surxondaryo</span>
+                            <span class="product-organic-tag"><i class="fa-solid fa-leaf" style="font-size:0.5rem;"></i>
+                                Organic</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-name">Organic Pomegranates</div>
+                        <div class="product-seller">
+                            <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                            Denau Premium Fruits
+                        </div>
+                        <div class="product-meta-row">
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">$5.20/kg</div>
+                                <div class="pmc-label">Price</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">200 kg</div>
+                                <div class="pmc-label">Min Order</div>
+                            </div>
+                            <div class="product-meta-chip">
+                                <div class="pmc-value">⭐ 4.9</div>
+                                <div class="pmc-label">Rating</div>
+                            </div>
+                        </div>
+                        <div class="product-card-footer">
+                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                                    class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                            <button class="product-fav-btn"
+                                onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
+                                    class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════ MESSAGES VIEW ═══════════════════ -->
+    <main class="view-section" id="view-messages">
+        <div class="view-hero">
+            <div class="view-header">
+                <h1 class="view-title">💬 Deal Negotiations</h1>
+                <p class="view-subtitle">Multi-party messaging with sellers, buyers, and drivers. AI-powered summaries
+                    keep everyone aligned.</p>
+            </div>
+
+            <div class="msg-layout">
+                <!-- Deal Groups Sidebar -->
+                <div class="deal-groups-panel">
+                    <div class="deal-groups-header">
+                        <span><i class="fa-solid fa-comments" style="margin-right:0.4rem;color:#7C3AED;"></i> Deal
+                            Groups</span>
+                        <span class="dg-count">5</span>
+                    </div>
+                    <div class="deal-groups-list">
+                        <div class="deal-group-item active">
+                            <div class="dg-avatar" style="background:#ECFDF5;color:#059669;"><i
+                                    class="fa-solid fa-apple-whole"></i></div>
+                            <div class="dg-info">
+                                <div class="dg-name">Deal #901 — Apples</div>
+                                <div class="dg-preview">Alisher: ETA is around 2:30 PM…</div>
+                            </div>
+                            <div class="dg-meta">
+                                <div class="dg-time">2m</div>
+                                <div class="dg-unread">3</div>
+                            </div>
+                        </div>
+                        <div class="deal-group-item">
+                            <div class="dg-avatar" style="background:#FEF3C7;color:var(--harvest-amber);"><i
+                                    class="fa-solid fa-wheat-awn"></i></div>
+                            <div class="dg-info">
+                                <div class="dg-name">Deal #897 — Wheat</div>
+                                <div class="dg-preview">Metro: Can we do $1.90/kg?</div>
+                            </div>
+                            <div class="dg-meta">
+                                <div class="dg-time">15m</div>
+                                <div class="dg-unread">1</div>
+                            </div>
+                        </div>
+                        <div class="deal-group-item">
+                            <div class="dg-avatar" style="background:#FEE2E2;color:#DC2626;"><i
+                                    class="fa-solid fa-pepper-hot"></i></div>
+                            <div class="dg-info">
+                                <div class="dg-name">Deal #892 — Peppers</div>
+                                <div class="dg-preview">Driver: Loaded and departing now</div>
+                            </div>
+                            <div class="dg-meta">
+                                <div class="dg-time">1h</div>
+                            </div>
+                        </div>
+                        <div class="deal-group-item">
+                            <div class="dg-avatar" style="background:#DBEAFE;color:#2563EB;"><i
+                                    class="fa-solid fa-carrot"></i></div>
+                            <div class="dg-info">
+                                <div class="dg-name">Deal #885 — Carrots</div>
+                                <div class="dg-preview">Fergana: Invoice attached</div>
+                            </div>
+                            <div class="dg-meta">
+                                <div class="dg-time">3h</div>
+                            </div>
+                        </div>
+                        <div class="deal-group-item">
+                            <div class="dg-avatar" style="background:#F5F3FF;color:#7C3AED;"><i
+                                    class="fa-solid fa-seedling"></i></div>
+                            <div class="dg-info">
+                                <div class="dg-name">Deal #878 — Spinach</div>
+                                <div class="dg-preview">Buyer: Deal confirmed ✔</div>
+                            </div>
+                            <div class="dg-meta">
+                                <div class="dg-time">1d</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Panel -->
+                <div class="chat-panel">
+                    <div class="chat-header">
+                        <div class="chat-header-left">
+                            <div>
+                                <h3>🍎 Deal Group #901 — Golden Apples</h3>
+                                <div class="chat-members">Namangan Valley · Korzinka Market · Driver Alisher K.</div>
+                            </div>
+                        </div>
+                        <button class="chat-ai-summary-btn" onclick="openAISummaryModal()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Summarize
+                        </button>
+                    </div>
+
+                    <div class="chat-body" id="chat-body">
+                        <div class="chat-system-msg"><span>Deal #901 created — Feb 25, 2026</span></div>
+
+                        <div class="chat-bubble seller">
+                            <div class="cb-sender"><i class="fa-solid fa-leaf" style="font-size:0.55rem;"></i> Namangan
+                                Valley Farms</div>
+                            Assalomu alaykum! We have 1,200 kg of Golden Apples ready — Grade A, harvested yesterday.
+                            Price: $3.80/kg. Can deliver by Friday.
+                            <div class="cb-time">Feb 25, 10:14 AM</div>
+                        </div>
+
+                        <div class="chat-bubble buyer">
+                            <div class="cb-sender"><i class="fa-solid fa-store" style="font-size:0.55rem;"></i> Korzinka
+                                Market</div>
+                            Wa alaykum assalom! We need 1,000 kg minimum. Can you do $3.50/kg for a recurring weekly
+                            order? We’d take the full 1,200 kg at that rate.
+                            <div class="cb-time">Feb 25, 10:32 AM</div>
+                        </div>
+
+                        <div class="chat-bubble seller">
+                            <div class="cb-sender"><i class="fa-solid fa-leaf" style="font-size:0.55rem;"></i> Namangan
+                                Valley Farms</div>
+                            $3.50 is tight for Grade A organic. How about $3.65/kg for the weekly commitment? That’s a
+                            fair middle ground.
+                            <div class="cb-time">Feb 25, 10:48 AM</div>
+                        </div>
+
+                        <div class="chat-bubble buyer">
+                            <div class="cb-sender"><i class="fa-solid fa-store" style="font-size:0.55rem;"></i> Korzinka
+                                Market</div>
+                            Deal — $3.65/kg for 1,200 kg weekly. ✅ Please confirm delivery schedule. We need it at Gate
+                            B-4 before 6 AM.
+                            <div class="cb-time">Feb 25, 11:05 AM</div>
+                        </div>
+
+                        <div class="chat-system-msg"><span>✅ Price agreed: $3.65/kg × 1,200 kg = $4,380/week</span>
+                        </div>
+
+                        <div class="chat-bubble driver">
+                            <div class="cb-sender"><i class="fa-solid fa-truck-fast" style="font-size:0.55rem;"></i>
+                                Driver Alisher K.</div>
+                            Salom! I can handle the weekly run. Namangan → Tashkent, I’ll depart at 2 AM to arrive by
+                            5:30 AM at Gate B-4. Refrigerated truck, 2,400 kg capacity.
+                            <div class="cb-time">Feb 25, 11:22 AM</div>
+                        </div>
+
+                        <div class="chat-bubble seller">
+                            <div class="cb-sender"><i class="fa-solid fa-leaf" style="font-size:0.55rem;"></i> Namangan
+                                Valley Farms</div>
+                            Perfect. Loading starts at 1:30 AM from our warehouse in Namangan center. Contact foreman
+                            Rustam at the gate.
+                            <div class="cb-time">Feb 25, 11:35 AM</div>
+                        </div>
+
+                        <div class="chat-bubble driver">
+                            <div class="cb-sender"><i class="fa-solid fa-truck-fast" style="font-size:0.55rem;"></i>
+                                Driver Alisher K.</div>
+                            Understood. First delivery this Friday. ETA is around 2:30 PM at Chorsu for a separate drop,
+                            then to Korzinka Gate B-4 by 5:30 AM. 🚛
+                            <div class="cb-time">Feb 25, 11:41 AM</div>
+                        </div>
+
+                        <div class="chat-bubble buyer">
+                            <div class="cb-sender"><i class="fa-solid fa-store" style="font-size:0.55rem;"></i> Korzinka
+                                Market</div>
+                            Excellent! Our receiving team will be ready. Looking forward to the first batch. Rahmat! 🙏
+                            <div class="cb-time">Feb 25, 11:53 AM</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-bar">
+                        <input type="text" id="chat-input" placeholder="Type your message…"
+                            onkeydown="if(event.key==='Enter')sendMessage()" />
+                        <button class="chat-send-btn" onclick="sendMessage()" title="Send message">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+    <script>
+        /**
+         * switchView(viewId)
+         * Toggles visibility of <main> view sections and updates
+         * the active button styling in the role switcher.
+         *
+         * @param {string} viewId — One of: 'producer', 'driver', 'retailer', 'messages'
+         */
+        function switchView(viewId) {
+            // 1. Hide all view sections
+            const allViews = document.querySelectorAll('.view-section');
+            allViews.forEach(view => view.classList.remove('active'));
+
+            // 2. Deactivate all role buttons
+            const allBtns = document.querySelectorAll('.role-btn');
+            allBtns.forEach(btn => btn.classList.remove('active'));
+
+            // 3. Show the target view
+            const targetView = document.getElementById(`view-${viewId}`);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // 4. Activate the corresponding button
+            const targetBtn = document.getElementById(`btn-${viewId}`);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
+            // 5. Invalidate Leaflet map size when switching to Driver view
+            if (viewId === 'driver' && window.driverMap) {
+                setTimeout(() => {
+                    window.driverMap.invalidateSize();
+                }, 100);
+            }
+        }
+
+        /**
+         * aiOptimize(productId)
+         * Calls the real /api/ai/optimize-listing endpoint with streaming.
+         * Text streams in progressively as the LLM generates it.
+         *
+         * @param {string} productId — 'apples' or 'tomatoes'
+         */
+        const cropDataMap = {
+            apples: {
+                product_name: 'Red Apples',
+                variety: 'Grade A Organic',
+                quantity_kg: 1800,
+                price_per_kg: 4.50,
+                region: 'Fergana',
+                is_organic: true
+            },
+            tomatoes: {
+                product_name: 'Cherry Tomatoes',
+                variety: 'Vine-Ripened Organic',
+                quantity_kg: 2400,
+                price_per_kg: 3.10,
+                region: 'Tashkent',
+                is_organic: true
+            }
+        };
+
+        async function aiOptimize(productId) {
+            const btn = document.getElementById(`ai-btn-${productId}`);
+            const resultBox = document.getElementById(`ai-result-${productId}`);
+
+            // Don't re-trigger if already done or loading
+            if (btn.classList.contains('done') || btn.classList.contains('loading')) return;
+
+            const cropData = cropDataMap[productId];
+            if (!cropData) return;
+
+            // 1. Start loading state
+            btn.classList.add('loading');
+
+            // 2. Prepare the result area for streaming
+            resultBox.innerHTML = `
+                <div class="ai-result-header">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI-Generated Description
+                </div>
+                <div id="ai-stream-${productId}" style="margin-top:0.35rem;white-space:pre-wrap;"></div>
+            `;
+            resultBox.classList.add('visible');
+
+            try {
+                const response = await fetch('/api/ai/optimize-listing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cropData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+
+                // 3. Stream the response body
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                const streamEl = document.getElementById(`ai-stream-${productId}`);
+                let fullText = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullText += chunk;
+                    streamEl.textContent = fullText;
+                }
+
+                // 4. Mark as done
+                btn.classList.remove('loading');
+                btn.classList.add('done');
+                const btnText = btn.querySelector('.btn-text');
+                btnText.innerHTML = '<i class="fa-solid fa-check"></i> Generated';
+                btnText.style.display = 'inline-flex';
+                btnText.style.alignItems = 'center';
+                btnText.style.gap = '0.35rem';
+                btn.querySelector('.loading-text').style.display = 'none';
+
+                showToast('AI description generated!', 'ai', 3000);
+
+            } catch (err) {
+                btn.classList.remove('loading');
+                resultBox.innerHTML = `
+                    <div class="ai-result-header" style="color:#DC2626;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Generation Failed
+                    </div>
+                    <span style="font-size:0.82rem;color:#991B1B;">${err.message}. Please try again.</span>
+                `;
+                console.error('AI optimize error:', err);
+            }
+        }
+
+        /**
+         * initDriverMap()
+         * Initializes the Leaflet map for the Driver view.
+         * Sets view to Eastern Uzbekistan, draws a dashed polyline
+         * from Namangan to Tashkent, and places a custom truck marker.
+         */
+        function initDriverMap() {
+            if (window.driverMap) return; // Already initialized
+
+            // Center between Namangan and Tashkent
+            const map = L.map('driver-map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([41.05, 69.5], 8);
+
+            // Add zoom control to top-right
+            L.control.zoom({ position: 'topright' }).addTo(map);
+
+            // Tile layer — CartoDB Voyager for a clean, modern look
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+            }).addTo(map);
+
+            // Route waypoints: Namangan → through Pap → Angren → Tashkent (realistic road path)
+            const routeCoords = [
+                [40.9983, 71.6726],  // Namangan
+                [40.9050, 71.1400],  // Chust area
+                [40.8200, 70.6500],  // Pap
+                [40.9800, 70.1500],  // Entering mountain pass
+                [41.0200, 69.9800],  // Kamchik Pass area
+                [41.0500, 69.7300],  // Angren approach
+                [41.0195, 69.6338],  // Angren
+                [41.0700, 69.4000],  // Olmaliq area
+                [41.1500, 69.2500],  // Approaching Tashkent
+                [41.2647, 69.2163],  // Sergeli, Tashkent
+                [41.3111, 69.2794],  // Chorsu Market area
+                [41.2995, 69.2401],  // Tashkent center
+            ];
+
+            // Dashed polyline for the full route
+            const routeLine = L.polyline(routeCoords, {
+                color: '#064E3B',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '12, 8',
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+
+            // Completed portion (solid line, first half of route)
+            const completedCoords = routeCoords.slice(0, 8);
+            L.polyline(completedCoords, {
+                color: '#10B981',
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+
+            // Start marker — Namangan
+            const startIcon = L.divIcon({
+                className: 'truck-marker-icon',
+                html: '<div style="width:28px;height:28px;background:#064E3B;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(6,78,59,0.4);"><i class="fa-solid fa-warehouse" style="color:#6EE7B7;font-size:0.7rem;"></i></div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            L.marker([40.9983, 71.6726], { icon: startIcon }).addTo(map)
+                .bindTooltip('Namangan', { className: 'route-label', direction: 'top', offset: [0, -16] });
+
+            // End marker — Tashkent / Chorsu
+            const endIcon = L.divIcon({
+                className: 'truck-marker-icon',
+                html: '<div style="width:28px;height:28px;background:#DC2626;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(220,38,38,0.4);"><i class="fa-solid fa-location-dot" style="color:#fff;font-size:0.8rem;"></i></div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            L.marker([41.3111, 69.2794], { icon: endIcon }).addTo(map)
+                .bindTooltip('Chorsu Market', { className: 'route-label', direction: 'top', offset: [0, -16] });
+
+            // Truck marker — on the road near Olmaliq (current position)
+            const truckIcon = L.divIcon({
+                className: 'truck-marker-icon',
+                html: `<div style="width:44px;height:44px;background:linear-gradient(135deg,#D97706,#F59E0B);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(217,119,6,0.45);border:3px solid #fff;">
+                    <i class="fa-solid fa-truck-fast" style="color:#fff;font-size:1rem;"></i>
+                </div>`,
+                iconSize: [44, 44],
+                iconAnchor: [22, 22]
+            });
+            const truckMarker = L.marker([41.0700, 69.4000], { icon: truckIcon, zIndexOffset: 1000 }).addTo(map)
+                .bindTooltip('Driver: Alisher K.', { className: 'route-label', direction: 'top', offset: [0, -24], permanent: false });
+
+            // Intermediate stop — Sergeli Depot
+            const depotIcon = L.divIcon({
+                className: 'truck-marker-icon',
+                html: '<div style="width:22px;height:22px;background:#6B7280;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);border:2px solid #fff;"><i class="fa-solid fa-box" style="color:#fff;font-size:0.55rem;"></i></div>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+            L.marker([41.2647, 69.2163], { icon: depotIcon }).addTo(map)
+                .bindTooltip('Sergeli Depot', { className: 'route-label', direction: 'top', offset: [0, -14] });
+
+            // Store map reference
+            window.driverMap = map;
+        }
+
+        // Initialize — default to Producer view, then lazy-init the map
+        document.addEventListener('DOMContentLoaded', () => {
+            switchView('producer');
+
+            // Initialize the map once the DOM is ready
+            // (even though it's hidden, we create it, then invalidateSize on switch)
+            initDriverMap();
+        });
+    </script>
+
+    <!-- ═══ Greedy Algorithm Modal ═══ -->
+    <div class="modal-overlay" id="greedy-modal" onclick="if(event.target===this)closeGreedyModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <i class="fa-solid fa-microchip"></i>
+                    <h2>Greedy Pooling Algorithm</h2>
+                </div>
+                <button class="modal-close" onclick="closeGreedyModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3><i class="fa-solid fa-circle-question" style="color:#7C3AED;"></i> How It Works</h3>
+                <p>The Greedy Pooling Engine maximizes truck utilization by filling available capacity with nearby
+                    orders, sorted by profit-per-km. At each step, it picks the most profitable order that fits the
+                    remaining space — a classic <strong>greedy knapsack approach</strong>.</p>
+
+                <h3><i class="fa-solid fa-list-ol" style="color:#7C3AED;"></i> Algorithm Steps</h3>
+                <div class="algo-step">
+                    <div class="algo-step-num">1</div>
+                    <div class="algo-step-text">
+                        <strong>Sort Available Orders</strong>
+                        <span>Rank all nearby orders by <em>profit per kilometer of detour</em>:
+                            <code>value / detour_km</code>.</span>
+                    </div>
+                </div>
+                <div class="algo-step">
+                    <div class="algo-step-num">2</div>
+                    <div class="algo-step-text">
+                        <strong>Check Remaining Capacity</strong>
+                        <span>Calculate <code>remaining = truck_max - current_load</code>. In this case:
+                            <code>2400 - 1920 = 480 kg</code>.</span>
+                    </div>
+                </div>
+                <div class="algo-step">
+                    <div class="algo-step-num">3</div>
+                    <div class="algo-step-text">
+                        <strong>Greedily Fill</strong>
+                        <span>Pick the top-ranked order that fits. If it fits, load it and repeat. Skip if it exceeds
+                            capacity.</span>
+                    </div>
+                </div>
+                <div class="algo-step">
+                    <div class="algo-step-num">4</div>
+                    <div class="algo-step-text">
+                        <strong>Output Optimized Route</strong>
+                        <span>Return the updated manifest with new stops, revised ETA, and projected profit
+                            boost.</span>
+                    </div>
+                </div>
+
+                <h3><i class="fa-solid fa-code" style="color:#7C3AED;"></i> Pseudocode</h3>
+                <div class="modal-code">
+                    <span class="comment">// Greedy Truck Pooling</span>
+                    <span class="keyword">function</span> optimizeLoad(truck, orders):
+                    orders.<span class="keyword">sort</span>(by: value/detour_km, <span class="keyword">desc</span>)
+                    remaining = truck.capacity - truck.current_load
+
+                    <span class="keyword">for</span> order <span class="keyword">in</span> orders:
+                    <span class="keyword">if</span> order.weight <= remaining: truck.<span class="keyword">
+                        add</span>(order)
+                        remaining -= order.weight
+                        profit += order.value
+
+                        <span class="keyword">return</span> truck.manifest, profit
+                </div>
+
+                <p style="margin-bottom:0;"><strong>Result:</strong> The algorithm increased load from 80% → 100%
+                    utilization by adding a 480 kg onion pickup near Angren, generating an extra <strong
+                        style="color:#059669;">$340 profit</strong> with only 8 km detour.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * updateRouteIntelligence()
+         * Calls the real /api/routing/optimize endpoint.
+         * Renders optimized cargo suggestions in the AI Advisor panel
+         * and adds pickup waypoint markers on the Leaflet map.
+         */
+        async function updateRouteIntelligence() {
+            const btn = document.getElementById('ai-route-btn');
+            const result = document.getElementById('ai-advisor-result');
+
+            if (btn.classList.contains('done') || btn.classList.contains('loading')) return;
+
+            btn.classList.add('loading');
+
+            try {
+                const response = await fetch('/api/routing/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        current_lat: 41.0700,
+                        current_lng: 69.4000,
+                        dest_lat: 41.3111,
+                        dest_lng: 69.2794,
+                        remaining_capacity_kg: 480,
+                        current_load_kg: 1920,
+                        truck_capacity_kg: 2400,
+                        radius_km: 50
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || `API returned ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                btn.classList.remove('loading');
+                btn.classList.add('done');
+
+                const btnText = btn.querySelector('.route-btn-text');
+                btnText.innerHTML = '<i class="fa-solid fa-check"></i> Intelligence Updated';
+                btnText.style.display = 'inline-flex';
+                btnText.style.alignItems = 'center';
+                btnText.style.gap = '0.35rem';
+                btn.querySelector('.route-btn-loading').style.display = 'none';
+
+                // Build advisor result HTML
+                if (data.selected_cargo && data.selected_cargo.length > 0) {
+                    const cargoListHtml = data.selected_cargo.map(c =>
+                        `<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:0.6rem;margin-bottom:0.4rem;">
+                            <strong style="font-size:0.82rem;">${c.product_name}</strong>
+                            <span style="font-size:0.75rem;color:#059669;float:right;">+$${c.payout.toFixed(0)}</span><br/>
+                            <span style="font-size:0.75rem;color:#374151;">${c.weight_kg} kg · ${c.detour_km.toFixed(1)} km detour · $${c.profit_per_km.toFixed(0)}/km</span>
+                        </div>`
+                    ).join('');
+
+                    result.innerHTML = `
+                        <strong style="display:block;margin-bottom:0.35rem;">🎯 ${data.selected_cargo.length} Optimization${data.selected_cargo.length > 1 ? 's' : ''} Found!</strong>
+                        ${cargoListHtml}
+                        <div class="ai-advisor-suggestion" style="margin-top:0.6rem;">
+                            <span style="font-size:0.78rem;">
+                                💰 Profit boost: <strong style="color:#059669;">+$${data.total_profit_boost.toFixed(0)}</strong>
+                                &nbsp;·&nbsp; ⏱ Added time: <strong>${data.added_time_min.toFixed(0)} min</strong>
+                                &nbsp;·&nbsp; 📦 Utilization: <strong>${data.new_utilization_pct.toFixed(0)}%</strong>
+                                &nbsp;·&nbsp; 🌿 CO₂ saved: <strong>${data.co2_saved_kg.toFixed(1)} kg</strong>
+                            </span>
+                        </div>
+                    `;
+                    result.classList.add('visible');
+
+                    // Update capacity bar
+                    updateCapacityBar(data);
+
+                    // Add waypoint markers on the Leaflet map
+                    if (window.driverMap) {
+                        addOptimizedWaypoints(data);
+                    }
+                } else {
+                    result.innerHTML = `
+                        <strong style="display:block;margin-bottom:0.35rem;">✅ Route Analyzed</strong>
+                        <span style="font-size:0.82rem;color:var(--text-secondary);">No profitable cargo found within the search radius. Your current route is optimal!</span>
+                    `;
+                    result.classList.add('visible');
+                }
+
+                showToast('Route intelligence updated!', 'ai', 3000);
+
+            } catch (err) {
+                btn.classList.remove('loading');
+                result.innerHTML = `
+                    <strong style="display:block;margin-bottom:0.35rem;color:#DC2626;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Analysis Failed
+                    </strong>
+                    <span style="font-size:0.82rem;color:#991B1B;">${err.message}</span>
+                `;
+                result.classList.add('visible');
+                console.error('Route intelligence error:', err);
+            }
+        }
+
+        /**
+         * addOptimizedWaypoints(data)
+         * Adds pickup markers and a detour polyline to the Leaflet map.
+         */
+        function addOptimizedWaypoints(data) {
+            const map = window.driverMap;
+            if (!map) return;
+
+            // Clear previous optimization markers if any
+            if (window._optimizationMarkers) {
+                window._optimizationMarkers.forEach(m => map.removeLayer(m));
+            }
+            window._optimizationMarkers = [];
+
+            const pickupCoords = [];
+
+            data.waypoints.forEach(wp => {
+                if (wp.type === 'pickup') {
+                    // Pickup marker — green pulsing circle
+                    const pickupIcon = L.divIcon({
+                        className: 'truck-marker-icon',
+                        html: `<div style="width:32px;height:32px;background:linear-gradient(135deg,#059669,#10B981);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(5,150,105,0.5);border:3px solid #fff;animation:pulse 2s infinite;">
+                            <i class="fa-solid fa-box" style="color:#fff;font-size:0.75rem;"></i>
+                        </div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+
+                    const marker = L.marker([wp.lat, wp.lng], { icon: pickupIcon, zIndexOffset: 900 })
+                        .addTo(map)
+                        .bindTooltip(wp.label, {
+                            className: 'route-label',
+                            direction: 'top',
+                            offset: [0, -18]
+                        })
+                        .bindPopup(`
+                            <div style="font-size:0.85rem;min-width:160px;">
+                                <strong>${wp.product_name || 'Cargo'}</strong><br/>
+                                📦 ${wp.cargo_kg} kg<br/>
+                                💰 $${wp.payout?.toFixed(0) || '0'}
+                            </div>
+                        `);
+
+                    window._optimizationMarkers.push(marker);
+                    pickupCoords.push([wp.lat, wp.lng]);
+                }
+            });
+
+            // Draw detour polyline (from truck through pickups)
+            if (pickupCoords.length > 0) {
+                const truckPos = [41.0700, 69.4000]; // current truck position
+                const allPoints = [truckPos, ...pickupCoords];
+
+                const detourLine = L.polyline(allPoints, {
+                    color: '#059669',
+                    weight: 3,
+                    opacity: 0.7,
+                    dashArray: '8, 6',
+                    lineCap: 'round'
+                }).addTo(map);
+
+                window._optimizationMarkers.push(detourLine);
+            }
+        }
+
+        /**
+         * updateCapacityBar(data)
+         * Dynamically updates the pooling sidebar capacity bar and stats.
+         */
+        function updateCapacityBar(data) {
+            // Update profit boost stat
+            const profitEl = document.querySelector('.pooling-stat-card.profit .ps-value');
+            if (profitEl) {
+                profitEl.textContent = `+$${data.total_profit_boost.toFixed(0)}`;
+            }
+
+            // Update CO2 stat
+            const co2El = document.querySelector('.pooling-stat-card.co2 .ps-value');
+            if (co2El) {
+                co2El.textContent = `-${data.co2_saved_kg.toFixed(1)} kg`;
+            }
+
+            // Update capacity label
+            const capLabel = document.querySelector('.greedy-bar-label .capacity');
+            if (capLabel) {
+                capLabel.textContent = `${data.new_load_kg.toFixed(0)} / 2,400 kg`;
+            }
+
+            // Update bar segments
+            const addedWeight = data.selected_cargo.reduce((s, c) => s + c.weight_kg, 0);
+            const totalCap = 2400;
+            const applesPct = (1200 / totalCap * 100);
+            const onionsPct = (720 / totalCap * 100);
+            const newCargoPct = (addedWeight / totalCap * 100);
+            const emptyPct = Math.max(0, 100 - applesPct - onionsPct - newCargoPct);
+
+            const barContainer = document.querySelector('.greedy-bar');
+            if (barContainer) {
+                // Build new cargo segment name
+                const cargoNames = data.selected_cargo.map(c => c.product_name).join(', ');
+                barContainer.innerHTML = `
+                    <div class="greedy-segment apples" style="width:${applesPct}%;">🍎 Apples</div>
+                    <div class="greedy-segment onions" style="width:${onionsPct}%;">🧅 Onions</div>
+                    <div class="greedy-segment" style="width:${newCargoPct}%;background:linear-gradient(135deg,#059669,#10B981);color:#fff;font-size:0.65rem;padding:0 0.3rem;">📦 ${cargoNames}</div>
+                    ${emptyPct > 1 ? `<div class="greedy-segment empty" style="width:${emptyPct}%;">Empty</div>` : ''}
+                `;
+            }
+        }
+
+        /** Open / Close Greedy Algo Modal */
+        function openGreedyModal() {
+            document.getElementById('greedy-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGreedyModal() {
+            document.getElementById('greedy-modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeGreedyModal();
+                closeAISummaryModal();
+            }
+        });
+    </script>
+
+    <!-- ═══ AI Summary Modal ═══ -->
+    <div class="modal-overlay" id="ai-summary-modal" onclick="if(event.target===this)closeAISummaryModal()">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,#5B21B6,#7C3AED);">
+                <div class="modal-header-left">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <h2>AI Deal Summary</h2>
+                </div>
+                <button class="modal-close" onclick="closeAISummaryModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="ai-summary-body">
+                <div style="text-align:center;padding:2rem 0;">
+                    <div
+                        style="width:36px;height:36px;border:3px solid #E5E7EB;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1rem;">
+                    </div>
+                    <p style="color:var(--text-secondary);margin:0;">Analyzing conversation…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * sendMessage()
+         * Appends a new buyer message to the chat container.
+         */
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chatBody = document.getElementById('chat-body');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble buyer';
+            bubble.innerHTML = `
+                <div class="cb-sender"><i class="fa-solid fa-store" style="font-size:0.55rem;"></i> You (Korzinka Market)</div>
+                ${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                <div class="cb-time">Today, ${timeStr}</div>
+            `;
+
+            chatBody.appendChild(bubble);
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+            showToast('Message sent', 'success', 2000);
+        }
+
+        /**
+         * openAISummaryModal()
+         * Calls the real /api/ai/summarize-chat endpoint,
+         * then renders the structured AI summary into the modal.
+         */
+        async function openAISummaryModal() {
+            const modal = document.getElementById('ai-summary-modal');
+            const body = document.getElementById('ai-summary-body');
+
+            // Reset to loading
+            body.innerHTML = `
+                <div style="text-align:center;padding:2rem 0;">
+                    <div style="width:36px;height:36px;border:3px solid #E5E7EB;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1rem;"></div>
+                    <p style="color:var(--text-secondary);margin:0;">Analyzing conversation with AI…</p>
+                </div>
+            `;
+
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const response = await fetch('/api/ai/summarize-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deal_number: 901 })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || `API returned ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Build the action items HTML
+                const actionItemsHtml = (data.action_items || [])
+                    .map(item => `<li>${item}</li>`)
+                    .join('');
+
+                body.innerHTML = `
+                    <h3><i class="fa-solid fa-clipboard-list" style="color:#7C3AED;"></i> Deal #${data.deal_number} Summary</h3>
+                    <p style="margin-bottom:0.75rem;">${data.summary_text}</p>
+
+                    <div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:12px;padding:1.15rem;margin-bottom:1.25rem;">
+                        <div style="font-weight:700;font-size:0.82rem;color:#5B21B6;margin-bottom:0.65rem;"><i class="fa-solid fa-handshake" style="margin-right:0.35rem;"></i> Negotiation Outcome</div>
+                        <ul style="margin:0;padding-left:1.25rem;font-size:0.82rem;color:#4C1D95;line-height:1.8;">
+                            <li><strong>Product:</strong> ${data.title}</li>
+                            ${data.agreed_price ? `<li><strong>Agreed Price:</strong> ${data.agreed_price}</li>` : ''}
+                            ${data.quantity ? `<li><strong>Quantity:</strong> ${data.quantity}</li>` : ''}
+                            ${data.total_value ? `<li><strong>Total Value:</strong> ${data.total_value}</li>` : ''}
+                        </ul>
+                    </div>
+
+                    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:1.15rem;margin-bottom:1.25rem;">
+                        <div style="font-weight:700;font-size:0.82rem;color:#065F46;margin-bottom:0.65rem;"><i class="fa-solid fa-truck-fast" style="margin-right:0.35rem;"></i> Logistics</div>
+                        <ul style="margin:0;padding-left:1.25rem;font-size:0.82rem;color:#064E3B;line-height:1.8;">
+                            ${data.driver_name ? `<li><strong>Driver:</strong> ${data.driver_name}</li>` : ''}
+                            ${data.pickup_time ? `<li><strong>Pickup/Loading:</strong> ${data.pickup_time}</li>` : ''}
+                            ${data.departure_time ? `<li><strong>Departure:</strong> ${data.departure_time}</li>` : ''}
+                            ${data.delivery_eta ? `<li><strong>ETA:</strong> ${data.delivery_eta}</li>` : ''}
+                            ${data.delivery_gate ? `<li><strong>Delivery Gate:</strong> ${data.delivery_gate}</li>` : ''}
+                        </ul>
+                    </div>
+
+                    ${actionItemsHtml ? `
+                    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.15rem;">
+                        <div style="font-weight:700;font-size:0.82rem;color:#92400E;margin-bottom:0.65rem;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:0.35rem;"></i> Action Items</div>
+                        <ul style="margin:0;padding-left:1.25rem;font-size:0.82rem;color:#78350F;line-height:1.8;">
+                            ${actionItemsHtml}
+                        </ul>
+                    </div>` : ''}
+                `;
+
+                showToast('AI summary generated!', 'ai', 3000);
+
+            } catch (err) {
+                body.innerHTML = `
+                    <div style="text-align:center;padding:2rem 0;">
+                        <i class="fa-solid fa-circle-exclamation" style="font-size:2rem;color:#DC2626;margin-bottom:1rem;display:block;"></i>
+                        <p style="color:#991B1B;margin:0;font-weight:600;">Failed to generate summary</p>
+                        <p style="color:var(--text-secondary);margin:0.5rem 0 0;font-size:0.85rem;">${err.message}</p>
+                    </div>
+                `;
+                console.error('AI summary error:', err);
+            }
+        }
+
+        function closeAISummaryModal() {
+            document.getElementById('ai-summary-modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        /**
+         * showToast(message, type, duration)
+         * Creates a slide-up toast notification.
+         * @param {string} message — text to display
+         * @param {string} type — 'success' | 'info' | 'warning' | 'ai'
+         * @param {number} duration — ms before auto-dismiss (default 3500)
+         */
+        function showToast(message, type = 'info', duration = 3500) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                success: 'fa-solid fa-circle-check',
+                info: 'fa-solid fa-circle-info',
+                warning: 'fa-solid fa-triangle-exclamation',
+                ai: 'fa-solid fa-wand-magic-sparkles'
+            };
+
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="${icons[type] || icons.info}"></i></div>
+                <span>${message}</span>
+                <div class="toast-progress" style="animation-duration:${duration}ms;"></div>
+            `;
+            toast.style.position = 'relative';
+            toast.style.overflow = 'hidden';
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('dismissing');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        /**
+         * activateFilter(el)
+         * Toggles the active state on filter pills.
+         */
+        function activateFilter(el) {
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            filterMarketplace();
+        }
+
+        /**
+         * filterMarketplace()
+         * Combines the search query and active category filter to show/hide product cards.
+         * Both filters work together — a card must match BOTH to be shown.
+         */
+        let _activeCategory = 'all';
+
+        function filterMarketplace() {
+            const searchInput = document.getElementById('marketplace-search-input');
+            const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+            // Get active category from the currently active pill
+            const activePill = document.querySelector('.filter-pill.active');
+            _activeCategory = activePill ? (activePill.dataset.category || 'all') : 'all';
+
+            const cards = document.querySelectorAll('.product-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const name = (card.dataset.name || '').toLowerCase();
+                const category = (card.dataset.category || '').toLowerCase();
+                // Also search within the card's text content (seller, region, etc.)
+                const fullText = card.textContent.toLowerCase();
+
+                const matchesSearch = !query || name.includes(query) || fullText.includes(query);
+                const matchesCategory = _activeCategory === 'all' || category === _activeCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = '';
+                    // Add fade-in animation
+                    card.style.animation = 'none';
+                    card.offsetHeight; // trigger reflow
+                    card.style.animation = 'fadeInUp 0.3s ease forwards';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show a "no results" message if nothing matches
+            let noResults = document.getElementById('marketplace-no-results');
+            if (visibleCount === 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.id = 'marketplace-no-results';
+                    noResults.style.cssText = 'grid-column:1/-1;text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.5);font-size:1.1rem;';
+                    noResults.innerHTML = '<i class="fa-solid fa-search" style="font-size:2rem;margin-bottom:1rem;display:block;opacity:0.3;"></i>No products match your search.';
+                    document.querySelector('.product-grid').appendChild(noResults);
+                }
+                noResults.style.display = 'block';
+            } else if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
