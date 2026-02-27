@@ -64,6 +64,11 @@
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
             --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            --radius-md: 10px;
+            --card-bg: #FFFFFF;
+            --bg-color: #F9FAFB;
+            --accent-blue: #2563EB;
         }
 
         * {
@@ -242,6 +247,91 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── Toast Notifications ─── */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 0.5rem;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+            animation: toastIn 0.35s ease-out forwards;
+            pointer-events: auto;
+            max-width: 400px;
+        }
+
+        .toast.toast-success {
+            background: linear-gradient(135deg, #059669, #10B981);
+        }
+
+        .toast.toast-error {
+            background: linear-gradient(135deg, #DC2626, #EF4444);
+        }
+
+        .toast.toast-info {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+        }
+
+        .toast.toast-ai {
+            background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+        }
+
+        .toast.removing {
+            animation: toastOut 0.3s ease-in forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.95);
             }
         }
 
@@ -2679,6 +2769,251 @@
                 gap: 0.5rem;
             }
         }
+
+        /* ─── Auth System Styles ─── */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 78, 59, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .auth-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #064E3B, #047857);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        .auth-header h2 {
+            margin: 0 0 0.25rem;
+            font-size: 1.3rem;
+        }
+
+        .auth-header p {
+            margin: 0;
+            font-size: 0.82rem;
+            opacity: 0.8;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.85rem;
+            text-align: center;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--agro-green);
+            border-bottom-color: var(--agro-green);
+        }
+
+        .auth-form {
+            padding: 1.5rem 2rem 2rem;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .auth-input-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
+        }
+
+        .auth-input-group input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .auth-input-group input:focus {
+            border-color: var(--agro-green);
+            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+        }
+
+        .role-pills {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .role-pill {
+            flex: 1;
+            padding: 0.65rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .role-pill.selected {
+            border-color: var(--agro-green);
+            background: #ECFDF5;
+            color: var(--agro-green);
+        }
+
+        .role-pill i {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--agro-green);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .auth-submit:hover {
+            background: var(--agro-green-light);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            padding: 0.3rem 0.7rem 0.3rem 0.3rem;
+            border-radius: 50px;
+            transition: background 0.2s;
+        }
+
+        .nav-user:hover {
+            background: rgba(6, 78, 59, 0.08);
+        }
+
+        .nav-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--agro-green);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .nav-user-info {
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+
+        .nav-user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .nav-user-role {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+
+        /* Transport Method Radio Group */
+        .transport-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .transport-option {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.7rem 0.85rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transport-option:has(input:checked) {
+            border-color: var(--agro-green);
+            background: #F0FDF4;
+        }
+
+        .transport-option input[type="radio"] {
+            accent-color: var(--agro-green);
+            width: 16px;
+            height: 16px;
+        }
+
+        .transport-option .to-text {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .transport-option .to-desc {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 
@@ -2720,8 +3055,86 @@
                     <span class="msg-badge">3</span>
                 </button>
             </div>
+
+            <!-- User Avatar (visible when logged in) -->
+            <div class="nav-user" id="nav-user" style="display:none;" onclick="logoutUser()" title="Click to logout">
+                <div class="nav-user-avatar" id="nav-user-avatar">?</div>
+                <div class="nav-user-info">
+                    <div class="nav-user-name" id="nav-user-name">Guest</div>
+                    <div class="nav-user-role" id="nav-user-role">—</div>
+                </div>
+            </div>
         </div>
     </nav>
+
+    <!-- ═══════════════════ AUTH MODAL ═══════════════════ -->
+    <div class="auth-overlay" id="auth-modal">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div style="font-size:1.8rem;margin-bottom:0.4rem;">🌾</div>
+                <h2>Welcome to Daladan</h2>
+                <p>Agricultural Supply Chain Platform</p>
+            </div>
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Create Account</button>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form active" id="auth-login-form" onsubmit="event.preventDefault(); loginUser()">
+                <div class="auth-input-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Enter your username" required
+                        autocomplete="username" />
+                </div>
+                <div class="auth-input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" required
+                        autocomplete="current-password" />
+                </div>
+                <button type="submit" class="auth-submit">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+                <div style="text-align:center;margin-top:1rem;font-size:0.78rem;color:var(--text-secondary);">
+                    Demo accounts: <strong>farmer1</strong> / <strong>driver1</strong> / <strong>retailer1</strong>
+                    (password: <strong>1234</strong>)
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form class="auth-form" id="auth-register-form" onsubmit="event.preventDefault(); registerUser()">
+                <div class="auth-input-group">
+                    <label>Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose a username" required />
+                </div>
+                <div class="auth-input-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" placeholder="your@email.com" required />
+                </div>
+                <div class="auth-input-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Create a password" required />
+                </div>
+                <div class="auth-input-group">
+                    <label>Select Your Role</label>
+                    <div class="role-pills" id="role-pills">
+                        <div class="role-pill selected" data-role="producer" onclick="selectRolePill(this)">
+                            <i class="fa-solid fa-wheat-awn"></i> Producer
+                        </div>
+                        <div class="role-pill" data-role="driver" onclick="selectRolePill(this)">
+                            <i class="fa-solid fa-truck-fast"></i> Driver
+                        </div>
+                        <div class="role-pill" data-role="retailer" onclick="selectRolePill(this)">
+                            <i class="fa-solid fa-store"></i> Retailer
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="auth-submit">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- ═══════════════════ PRODUCER VIEW ═══════════════════ -->
     <main class="view-section active" id="view-producer">
@@ -2813,7 +3226,9 @@
                                 <div class="md-label">Deadline</div>
                             </div>
                         </div>
-                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                        <button class="market-card-action"
+                            onclick="acceptMarketNeed('Fresh Carrots', 'Korzinka Supermarket', 5000, 2.40)"><i
+                                class="fa-solid fa-handshake"></i> Accept Order</button>
                     </div>
 
                     <!-- Card 2: Tomatoes for Makro -->
@@ -2839,7 +3254,9 @@
                                 <div class="md-label">Deadline</div>
                             </div>
                         </div>
-                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                        <button class="market-card-action"
+                            onclick="acceptMarketNeed('Organic Tomatoes', 'Makro Wholesale', 3200, 3.10)"><i
+                                class="fa-solid fa-handshake"></i> Accept Order</button>
                     </div>
 
                     <!-- Card 3: Apples for haqdor.uz -->
@@ -2865,7 +3282,9 @@
                                 <div class="md-label">Deadline</div>
                             </div>
                         </div>
-                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                        <button class="market-card-action"
+                            onclick="acceptMarketNeed('Red Apples — Grade A', 'haqdor.uz Marketplace', 2000, 4.50)"><i
+                                class="fa-solid fa-handshake"></i> Accept Order</button>
                     </div>
 
                     <!-- Card 4: Onions for Baraka -->
@@ -2892,7 +3311,9 @@
                                 <div class="md-label">Deadline</div>
                             </div>
                         </div>
-                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                        <button class="market-card-action"
+                            onclick="acceptMarketNeed('Yellow Onions', 'Baraka Fresh Market', 8000, 1.80)"><i
+                                class="fa-solid fa-handshake"></i> Accept Order</button>
                     </div>
 
                     <!-- Card 5: Cucumbers for Metro -->
@@ -2918,7 +3339,9 @@
                                 <div class="md-label">Deadline</div>
                             </div>
                         </div>
-                        <button class="market-card-action"><i class="fa-solid fa-handshake"></i> Accept Order</button>
+                        <button class="market-card-action"
+                            onclick="acceptMarketNeed('Persian Cucumbers', 'Metro Cash & Carry', 1500, 2.90)"><i
+                                class="fa-solid fa-handshake"></i> Accept Order</button>
                     </div>
                 </div>
             </div>
@@ -2935,9 +3358,13 @@
                 <button class="section-see-all">
                     Manage All <i class="fa-solid fa-arrow-right" style="font-size:0.7rem;"></i>
                 </button>
+                <button class="section-see-all" onclick="document.getElementById('harvest-modal').classList.add('open')"
+                    style="margin-left:0.5rem;background:var(--agro-green);color:#fff;padding:0.4rem 0.85rem;border-radius:8px;">
+                    <i class="fa-solid fa-plus" style="font-size:0.7rem;margin-right:0.3rem;"></i> Log Harvest
+                </button>
             </div>
 
-            <div class="inventory-grid">
+            <div class="inventory-grid" id="inventory-grid">
                 <!-- Inventory Card 1: Apples -->
                 <div class="inventory-card" id="inv-card-apples">
                     <div class="inv-card-img"
@@ -3110,6 +3537,23 @@
             <!-- 2-Column Layout: Map+Deliveries + Pooling Sidebar -->
             <div class="driver-layout">
                 <div class="driver-main">
+                    <!-- Available Transport Jobs (Dynamically Populated) -->
+                    <div class="content-card" style="margin-bottom: 1.5rem;" id="available-freight-container">
+                        <div class="content-card-header">
+                            <span class="content-card-title"><i class="fa-solid fa-box-open"
+                                    style="color:var(--harvest-amber);margin-right:0.5rem;"></i>Available Transport
+                                Jobs</span>
+                            <span class="content-card-badge" id="freight-badge"
+                                style="background:#FFFBEB;color:var(--harvest-amber);display:none;">0 New</span>
+                        </div>
+                        <div id="freight-list">
+                            <div style="text-align:center;padding:1rem;color:var(--text-secondary);font-size:0.85rem;"
+                                id="no-freight-msg">
+                                No available jobs at the moment.
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Delivery List -->
                     <div class="content-card">
                         <div class="content-card-header">
@@ -3278,7 +3722,7 @@
             </div>
 
             <!-- Product Grid -->
-            <div class="product-grid">
+            <div class="product-grid" id="product-grid">
                 <!-- Product 1: Golden Apples -->
                 <div class="product-card" data-name="Golden Apples Premium" data-category="fruits">
                     <div class="product-img-wrap">
@@ -3293,6 +3737,10 @@
                     </div>
                     <div class="product-card-body">
                         <div class="product-name">Golden Apples — Premium</div>
+                        <div
+                            style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#FEF3C7;color:#B45309;">
+                            <i class="fa-solid fa-truck" style="font-size:0.6rem;"></i> Requires driver
+                        </div>
                         <div class="product-seller">
                             <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
                             Namangan Valley Farms
@@ -3312,7 +3760,8 @@
                             </div>
                         </div>
                         <div class="product-card-footer">
-                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                            <button class="product-cart-btn"
+                                onclick="addToCart('Golden Apples — Premium', 3.80, 'Namangan Valley Farms', '+998901234567', false)"><i
                                     class="fa-solid fa-cart-plus"></i> Add to Cart</button>
                             <button class="product-fav-btn"
                                 onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
@@ -3333,6 +3782,10 @@
                     </div>
                     <div class="product-card-body">
                         <div class="product-name">Red Onions — Grade A</div>
+                        <div
+                            style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#FEF3C7;color:#B45309;">
+                            <i class="fa-solid fa-truck" style="font-size:0.6rem;"></i> Requires driver
+                        </div>
                         <div class="product-seller">
                             <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
                             Samarkand Agro Co.
@@ -3352,7 +3805,8 @@
                             </div>
                         </div>
                         <div class="product-card-footer">
-                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                            <button class="product-cart-btn"
+                                onclick="addToCart('Red Onions — Grade A', 1.60, 'Samarkand Agro Co.', '+998902345678', false)"><i
                                     class="fa-solid fa-cart-plus"></i> Add to Cart</button>
                             <button class="product-fav-btn"
                                 onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
@@ -3375,6 +3829,10 @@
                     </div>
                     <div class="product-card-body">
                         <div class="product-name">Cherry Tomatoes — Vine</div>
+                        <div
+                            style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#ECFDF5;color:#059669;">
+                            <i class="fa-solid fa-truck-fast" style="font-size:0.6rem;"></i> Seller offers delivery
+                        </div>
                         <div class="product-seller">
                             <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
                             Green Valley Greenhouses
@@ -3394,7 +3852,8 @@
                             </div>
                         </div>
                         <div class="product-card-footer">
-                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                            <button class="product-cart-btn"
+                                onclick="addToCart('Cherry Tomatoes — Vine', 3.10, 'Green Valley Greenhouses', '+998903456789', true)"><i
                                     class="fa-solid fa-cart-plus"></i> Add to Cart</button>
                             <button class="product-fav-btn"
                                 onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
@@ -3415,6 +3874,10 @@
                     </div>
                     <div class="product-card-body">
                         <div class="product-name">Fresh Carrots — Sweet</div>
+                        <div
+                            style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#FEF3C7;color:#B45309;">
+                            <i class="fa-solid fa-truck" style="font-size:0.6rem;"></i> Requires driver
+                        </div>
                         <div class="product-seller">
                             <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
                             Fergana Organic Farm
@@ -3434,7 +3897,8 @@
                             </div>
                         </div>
                         <div class="product-card-footer">
-                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                            <button class="product-cart-btn"
+                                onclick="addToCart('Fresh Carrots — Sweet', 2.40, 'Fergana Organic Farm', '+998904567890', false)"><i
                                     class="fa-solid fa-cart-plus"></i> Add to Cart</button>
                             <button class="product-fav-btn"
                                 onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
@@ -3457,6 +3921,10 @@
                     </div>
                     <div class="product-card-body">
                         <div class="product-name">Persian Cucumbers</div>
+                        <div
+                            style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#ECFDF5;color:#059669;">
+                            <i class="fa-solid fa-truck-fast" style="font-size:0.6rem;"></i> Seller offers delivery
+                        </div>
                         <div class="product-seller">
                             <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
                             Bukhara Fields Ltd.
@@ -3476,7 +3944,8 @@
                             </div>
                         </div>
                         <div class="product-card-footer">
-                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                            <button class="product-cart-btn"
+                                onclick="addToCart('Persian Cucumbers', 2.90, 'Bukhara Fields Ltd.', '+998905678901', true)"><i
                                     class="fa-solid fa-cart-plus"></i> Add to Cart</button>
                             <button class="product-fav-btn"
                                 onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
@@ -3499,6 +3968,10 @@
                     </div>
                     <div class="product-card-body">
                         <div class="product-name">Organic Pomegranates</div>
+                        <div
+                            style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#FEF3C7;color:#B45309;">
+                            <i class="fa-solid fa-truck" style="font-size:0.6rem;"></i> Requires driver
+                        </div>
                         <div class="product-seller">
                             <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
                             Denau Premium Fruits
@@ -3518,7 +3991,8 @@
                             </div>
                         </div>
                         <div class="product-card-footer">
-                            <button class="product-cart-btn" onclick="showToast('Added to cart!','success')"><i
+                            <button class="product-cart-btn"
+                                onclick="addToCart('Organic Pomegranates', 5.20, 'Denau Premium Fruits', '+998906789012', false)"><i
                                     class="fa-solid fa-cart-plus"></i> Add to Cart</button>
                             <button class="product-fav-btn"
                                 onclick="this.innerHTML='<i class=\'fa-solid fa-heart\' style=\'color:#EF4444;\'></i>';showToast('Added to wishlist ❤️','success')"><i
@@ -3547,7 +4021,7 @@
                             Groups</span>
                         <span class="dg-count">5</span>
                     </div>
-                    <div class="deal-groups-list">
+                    <div class="deal-groups-list" id="deal-groups-list">
                         <div class="deal-group-item active">
                             <div class="dg-avatar" style="background:#ECFDF5;color:#059669;"><i
                                     class="fa-solid fa-apple-whole"></i></div>
@@ -3706,6 +4180,34 @@
 
     <!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
     <script>
+        // ─── Toast Notification System ───
+        (function () {
+            const container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        })();
+
+        function showToast(message, type = 'success', duration = 3000) {
+            const container = document.querySelector('.toast-container');
+            if (!container) return;
+
+            const iconMap = {
+                success: '<i class="fa-solid fa-circle-check"></i>',
+                error: '<i class="fa-solid fa-circle-xmark"></i>',
+                info: '<i class="fa-solid fa-circle-info"></i>',
+                ai: '<i class="fa-solid fa-wand-magic-sparkles"></i>'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `${iconMap[type] || iconMap.info} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
         /**
          * switchView(viewId)
          * Toggles visibility of <main> view sections and updates
@@ -3954,554 +4456,1156 @@
         });
     </script>
 
-    <!-- ═══ Greedy Algorithm Modal ═══ -->
-    <div class="modal-overlay" id="greedy-modal" onclick="if(event.target===this)closeGreedyModal()">
+    <!-- Harvest Modal -->
+    <div class="modal-overlay" id="harvest-modal"
+        onclick="if(event.target===this)document.getElementById('harvest-modal').classList.remove('open')">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="icon-bg" style="background:#ECFDF5;color:var(--agro-green);">
+                        <i class="fa-solid fa-wheat-awn"></i>
+                    </span>
+                    <h2 style="font-size:1.1rem;margin:0;">Log New Harvest</h2>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('harvest-modal').classList.remove('open')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:1.5rem;">
+                <div style="margin-bottom:1rem;">
+                    <label
+                        style="display:block;margin-bottom:0.4rem;font-size:0.85rem;font-weight:500;color:var(--text-secondary);">Crop
+                        Name</label>
+                    <input type="text" id="harvest-crop-name" placeholder="e.g. Golden Apples"
+                        style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border-color);border-radius:var(--radius-md);outline:none;font-family:inherit;font-size:0.9rem;" />
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+                    <div>
+                        <label
+                            style="display:block;margin-bottom:0.4rem;font-size:0.85rem;font-weight:500;color:var(--text-secondary);">Quantity
+                            (kg)</label>
+                        <input type="number" id="harvest-quantity" placeholder="1200"
+                            style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border-color);border-radius:var(--radius-md);outline:none;font-family:inherit;font-size:0.9rem;" />
+                    </div>
+                    <div>
+                        <label
+                            style="display:block;margin-bottom:0.4rem;font-size:0.85rem;font-weight:500;color:var(--text-secondary);">Price
+                            per kg ($)</label>
+                        <input type="number" id="harvest-price" step="0.01" placeholder="3.80"
+                            style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border-color);border-radius:var(--radius-md);outline:none;font-family:inherit;font-size:0.9rem;" />
+                    </div>
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label
+                        style="display:block;margin-bottom:0.4rem;font-size:0.85rem;font-weight:500;color:var(--text-secondary);">Region</label>
+                    <select id="harvest-region"
+                        style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border-color);border-radius:var(--radius-md);outline:none;font-family:inherit;font-size:0.9rem;background:var(--card-bg);">
+                        <option>Namangan</option>
+                        <option>Fergana</option>
+                        <option>Samarkand</option>
+                        <option>Tashkent</option>
+                        <option>Bukhara</option>
+                        <option>Surxondaryo</option>
+                    </select>
+                </div>
+
+                <!-- Self-Transport Checkbox -->
+                <label
+                    style="display:flex;align-items:flex-start;gap:0.6rem;padding:0.85rem;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--radius-md);margin-bottom:1.25rem;cursor:pointer;">
+                    <input type="checkbox" id="harvest-self-transport"
+                        style="margin-top:3px;accent-color:var(--agro-green);width:16px;height:16px;" />
+                    <div>
+                        <div style="font-size:0.88rem;font-weight:600;color:var(--text-primary);margin-bottom:0.15rem;">
+                            I can transport this myself</div>
+                        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.35;">(Include transport
+                            fee in price — buyers will see a "Seller offers delivery" badge)</div>
+                    </div>
+                </label>
+
+                <button onclick="submitHarvest()"
+                    style="width:100%;padding:0.875rem;background:var(--agro-green);color:white;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-family:inherit;font-size:0.9rem;transition:background 0.2s;">
+                    <i class="fa-solid fa-check"></i> Log Harvest
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cart-modal" onclick="if(event.target===this)closeCartModal()">
+        <div class="modal-content" style="max-width:520px;">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="icon-bg" style="background:#EFF6FF;color:#2563EB;">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </span>
+                    <h2 style="font-size:1.1rem;margin:0;">Your Cart</h2>
+                </div>
+                <button class="modal-close" onclick="closeCartModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:1.5rem;">
+                <div id="cart-items-container"
+                    style="display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1.25rem;max-height:300px;overflow-y:auto;">
+                </div>
+
+                <div
+                    style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:var(--bg-color);border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:1.25rem;">
+                    <span style="font-size:0.9rem;font-weight:500;color:var(--text-secondary);">Total</span>
+                    <span id="cart-total"
+                        style="font-size:1.35rem;font-weight:700;color:var(--text-primary);">$0.00</span>
+                </div>
+
+                <button onclick="proceedToEscrow()"
+                    style="width:100%;padding:0.875rem;background:var(--agro-green);color:white;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-family:inherit;font-size:0.9rem;transition:background 0.2s;">
+                    <i class="fa-solid fa-lock"></i> Proceed to Escrow Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Checkout Modal -->
+    <div class="modal-overlay" id="payment-modal" onclick="if(event.target===this)closePaymentModal()">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-left">
-                    <i class="fa-solid fa-microchip"></i>
-                    <h2>Greedy Pooling Algorithm</h2>
+                    <span class="icon-bg" style="background:#ECFDF5;color:var(--agro-green);">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </span>
+                    <h2 style="font-size:1.1rem;margin:0;">Finalize Payment</h2>
                 </div>
-                <button class="modal-close" onclick="closeGreedyModal()">
+                <button class="modal-close" onclick="closePaymentModal()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <h3><i class="fa-solid fa-circle-question" style="color:#7C3AED;"></i> How It Works</h3>
-                <p>The Greedy Pooling Engine maximizes truck utilization by filling available capacity with nearby
-                    orders, sorted by profit-per-km. At each step, it picks the most profitable order that fits the
-                    remaining space — a classic <strong>greedy knapsack approach</strong>.</p>
-
-                <h3><i class="fa-solid fa-list-ol" style="color:#7C3AED;"></i> Algorithm Steps</h3>
-                <div class="algo-step">
-                    <div class="algo-step-num">1</div>
-                    <div class="algo-step-text">
-                        <strong>Sort Available Orders</strong>
-                        <span>Rank all nearby orders by <em>profit per kilometer of detour</em>:
-                            <code>value / detour_km</code>.</span>
-                    </div>
-                </div>
-                <div class="algo-step">
-                    <div class="algo-step-num">2</div>
-                    <div class="algo-step-text">
-                        <strong>Check Remaining Capacity</strong>
-                        <span>Calculate <code>remaining = truck_max - current_load</code>. In this case:
-                            <code>2400 - 1920 = 480 kg</code>.</span>
-                    </div>
-                </div>
-                <div class="algo-step">
-                    <div class="algo-step-num">3</div>
-                    <div class="algo-step-text">
-                        <strong>Greedily Fill</strong>
-                        <span>Pick the top-ranked order that fits. If it fits, load it and repeat. Skip if it exceeds
-                            capacity.</span>
-                    </div>
-                </div>
-                <div class="algo-step">
-                    <div class="algo-step-num">4</div>
-                    <div class="algo-step-text">
-                        <strong>Output Optimized Route</strong>
-                        <span>Return the updated manifest with new stops, revised ETA, and projected profit
-                            boost.</span>
+            <div class="modal-body" style="padding:1.5rem;">
+                <div style="text-align:center;margin-bottom:1.5rem;">
+                    <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.25rem;">Total Amount to
+                        Escrow</div>
+                    <div style="font-size:2rem;font-weight:700;color:var(--text-primary);" id="payment-total">$0.00
                     </div>
                 </div>
 
-                <h3><i class="fa-solid fa-code" style="color:#7C3AED;"></i> Pseudocode</h3>
-                <div class="modal-code">
-                    <span class="comment">// Greedy Truck Pooling</span>
-                    <span class="keyword">function</span> optimizeLoad(truck, orders):
-                    orders.<span class="keyword">sort</span>(by: value/detour_km, <span class="keyword">desc</span>)
-                    remaining = truck.capacity - truck.current_load
-
-                    <span class="keyword">for</span> order <span class="keyword">in</span> orders:
-                    <span class="keyword">if</span> order.weight <= remaining: truck.<span class="keyword">
-                        add</span>(order)
-                        remaining -= order.weight
-                        profit += order.value
-
-                        <span class="keyword">return</span> truck.manifest, profit
+                <div
+                    style="background:var(--bg-color);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                        <i class="fa-solid fa-lock" style="color:var(--text-secondary);"></i>
+                        <div style="font-size:0.9rem;font-weight:600;">Secure Escrow Hold</div>
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.4;">
+                        Your funds will be held securely in a smart contract. The seller is instantly notified, and
+                        funds are only released upon your confirmation of delivery.
+                    </div>
                 </div>
 
-                <p style="margin-bottom:0;"><strong>Result:</strong> The algorithm increased load from 80% → 100%
-                    utilization by adding a 480 kg onion pickup near Angren, generating an extra <strong
-                        style="color:#059669;">$340 profit</strong> with only 8 km detour.</p>
+                <div style="margin-bottom:1.5rem;">
+                    <label
+                        style="display:block;margin-bottom:0.5rem;font-size:0.85rem;color:var(--text-secondary);">Select
+                        Payment Method</label>
+                    <select
+                        style="width:100%;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-md);outline:none;background:var(--card-bg);color:var(--text-primary);">
+                        <option value="bank">Bank Transfer (UzPSB) ending in 4022</option>
+                        <option value="corporate">Corporate Card ending in 8812</option>
+                    </select>
+                </div>
+
+                <!-- Transport Method Toggle -->
+                <div style="margin-bottom:1.5rem;">
+                    <label
+                        style="display:block;margin-bottom:0.5rem;font-size:0.85rem;color:var(--text-secondary);">Transport
+                        Method</label>
+                    <div class="transport-options">
+                        <label class="transport-option">
+                            <input type="radio" name="transport-method" value="driver_network" checked />
+                            <div>
+                                <div class="to-text">🚛 Driver Network</div>
+                                <div class="to-desc">Auto-assign from the Daladan driver pool</div>
+                            </div>
+                        </label>
+                        <label class="transport-option">
+                            <input type="radio" name="transport-method" value="producer_delivery" />
+                            <div>
+                                <div class="to-text">🌾 Producer Self-Delivery</div>
+                                <div class="to-desc">Seller handles transport (included in price)</div>
+                            </div>
+                        </label>
+                        <label class="transport-option">
+                            <input type="radio" name="transport-method" value="retailer_pickup" />
+                            <div>
+                                <div class="to-text">🏪 Retailer Pickup</div>
+                                <div class="to-desc">I'll pick up from the farm myself</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="confirmPayment()" id="confirm-payment-btn"
+                    style="width:100%;padding:0.875rem;background:var(--agro-green);color:white;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+                    <i class="fa-solid fa-check-circle"></i> Confirm Payment
+                </button>
             </div>
         </div>
     </div>
 
+
+    <!-- Floating Cart Button -->
+    <div id="floating-cart" class="floating-cart" onclick="openCartModal()"
+        style="display:none; position:fixed; bottom:2rem; right:2rem; background:var(--agro-green); color:white; width:60px; height:60px; border-radius:50%; align-items:center; justify-content:center; font-size:1.5rem; cursor:pointer; box-shadow:0 10px 25px rgba(5,150,105,0.4); z-index:100; transition:transform 0.2s;">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span id="cart-badge"
+            style="position:absolute; top:-5px; right:-5px; background:#EF4444; color:white; font-size:0.75rem; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; display:none; border:2px solid white; transition:transform 0.2s;">0</span>
+    </div>
+
+    <!-- ═══ Auth System Scripts ═══ -->
     <script>
-        /**
-         * updateRouteIntelligence()
-         * Calls the real /api/routing/optimize endpoint.
-         * Renders optimized cargo suggestions in the AI Advisor panel
-         * and adds pickup waypoint markers on the Leaflet map.
-         */
-        async function updateRouteIntelligence() {
-            const btn = document.getElementById('ai-route-btn');
-            const result = document.getElementById('ai-advisor-result');
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ MOCK AUTHENTICATION SYSTEM ░░░
+        // ═══════════════════════════════════════════════════════════
 
-            if (btn.classList.contains('done') || btn.classList.contains('loading')) return;
+        // ─── Mock User Database (localStorage-backed) ───
+        let registeredUsers = JSON.parse(localStorage.getItem('daladan_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('daladan_session')) || null;
 
-            btn.classList.add('loading');
+        // Seed demo accounts on first visit
+        function seedDemoUsers() {
+            const demos = [
+                { username: 'farmer1', email: 'farmer1@daladan.uz', password: '1234', role: 'producer', fullName: 'Akbar Karimov' },
+                { username: 'driver1', email: 'driver1@daladan.uz', password: '1234', role: 'driver', fullName: 'Alisher Kholmatov' },
+                { username: 'retailer1', email: 'retailer1@daladan.uz', password: '1234', role: 'retailer', fullName: 'Dilnoza Rashidova' }
+            ];
 
-            try {
-                const response = await fetch('/api/routing/optimize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        current_lat: 41.0700,
-                        current_lng: 69.4000,
-                        dest_lat: 41.3111,
-                        dest_lng: 69.2794,
-                        remaining_capacity_kg: 480,
-                        current_load_kg: 1920,
-                        truck_capacity_kg: 2400,
-                        radius_km: 50
-                    })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.detail || `API returned ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                btn.classList.remove('loading');
-                btn.classList.add('done');
-
-                const btnText = btn.querySelector('.route-btn-text');
-                btnText.innerHTML = '<i class="fa-solid fa-check"></i> Intelligence Updated';
-                btnText.style.display = 'inline-flex';
-                btnText.style.alignItems = 'center';
-                btnText.style.gap = '0.35rem';
-                btn.querySelector('.route-btn-loading').style.display = 'none';
-
-                // Build advisor result HTML
-                if (data.selected_cargo && data.selected_cargo.length > 0) {
-                    const cargoListHtml = data.selected_cargo.map(c =>
-                        `<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:0.6rem;margin-bottom:0.4rem;">
-                            <strong style="font-size:0.82rem;">${c.product_name}</strong>
-                            <span style="font-size:0.75rem;color:#059669;float:right;">+$${c.payout.toFixed(0)}</span><br/>
-                            <span style="font-size:0.75rem;color:#374151;">${c.weight_kg} kg · ${c.detour_km.toFixed(1)} km detour · $${c.profit_per_km.toFixed(0)}/km</span>
-                        </div>`
-                    ).join('');
-
-                    result.innerHTML = `
-                        <strong style="display:block;margin-bottom:0.35rem;">🎯 ${data.selected_cargo.length} Optimization${data.selected_cargo.length > 1 ? 's' : ''} Found!</strong>
-                        ${cargoListHtml}
-                        <div class="ai-advisor-suggestion" style="margin-top:0.6rem;">
-                            <span style="font-size:0.78rem;">
-                                💰 Profit boost: <strong style="color:#059669;">+$${data.total_profit_boost.toFixed(0)}</strong>
-                                &nbsp;·&nbsp; ⏱ Added time: <strong>${data.added_time_min.toFixed(0)} min</strong>
-                                &nbsp;·&nbsp; 📦 Utilization: <strong>${data.new_utilization_pct.toFixed(0)}%</strong>
-                                &nbsp;·&nbsp; 🌿 CO₂ saved: <strong>${data.co2_saved_kg.toFixed(1)} kg</strong>
-                            </span>
-                        </div>
-                    `;
-                    result.classList.add('visible');
-
-                    // Update capacity bar
-                    updateCapacityBar(data);
-
-                    // Add waypoint markers on the Leaflet map
-                    if (window.driverMap) {
-                        addOptimizedWaypoints(data);
-                    }
-                } else {
-                    result.innerHTML = `
-                        <strong style="display:block;margin-bottom:0.35rem;">✅ Route Analyzed</strong>
-                        <span style="font-size:0.82rem;color:var(--text-secondary);">No profitable cargo found within the search radius. Your current route is optimal!</span>
-                    `;
-                    result.classList.add('visible');
-                }
-
-                showToast('Route intelligence updated!', 'ai', 3000);
-
-            } catch (err) {
-                btn.classList.remove('loading');
-                result.innerHTML = `
-                    <strong style="display:block;margin-bottom:0.35rem;color:#DC2626;">
-                        <i class="fa-solid fa-circle-exclamation"></i> Analysis Failed
-                    </strong>
-                    <span style="font-size:0.82rem;color:#991B1B;">${err.message}</span>
-                `;
-                result.classList.add('visible');
-                console.error('Route intelligence error:', err);
-            }
-        }
-
-        /**
-         * addOptimizedWaypoints(data)
-         * Adds pickup markers and a detour polyline to the Leaflet map.
-         */
-        function addOptimizedWaypoints(data) {
-            const map = window.driverMap;
-            if (!map) return;
-
-            // Clear previous optimization markers if any
-            if (window._optimizationMarkers) {
-                window._optimizationMarkers.forEach(m => map.removeLayer(m));
-            }
-            window._optimizationMarkers = [];
-
-            const pickupCoords = [];
-
-            data.waypoints.forEach(wp => {
-                if (wp.type === 'pickup') {
-                    // Pickup marker — green pulsing circle
-                    const pickupIcon = L.divIcon({
-                        className: 'truck-marker-icon',
-                        html: `<div style="width:32px;height:32px;background:linear-gradient(135deg,#059669,#10B981);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(5,150,105,0.5);border:3px solid #fff;animation:pulse 2s infinite;">
-                            <i class="fa-solid fa-box" style="color:#fff;font-size:0.75rem;"></i>
-                        </div>`,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 16]
-                    });
-
-                    const marker = L.marker([wp.lat, wp.lng], { icon: pickupIcon, zIndexOffset: 900 })
-                        .addTo(map)
-                        .bindTooltip(wp.label, {
-                            className: 'route-label',
-                            direction: 'top',
-                            offset: [0, -18]
-                        })
-                        .bindPopup(`
-                            <div style="font-size:0.85rem;min-width:160px;">
-                                <strong>${wp.product_name || 'Cargo'}</strong><br/>
-                                📦 ${wp.cargo_kg} kg<br/>
-                                💰 $${wp.payout?.toFixed(0) || '0'}
-                            </div>
-                        `);
-
-                    window._optimizationMarkers.push(marker);
-                    pickupCoords.push([wp.lat, wp.lng]);
+            demos.forEach(demo => {
+                if (!registeredUsers.find(u => u.username === demo.username)) {
+                    registeredUsers.push({ ...demo, createdAt: new Date().toISOString() });
                 }
             });
-
-            // Draw detour polyline (from truck through pickups)
-            if (pickupCoords.length > 0) {
-                const truckPos = [41.0700, 69.4000]; // current truck position
-                const allPoints = [truckPos, ...pickupCoords];
-
-                const detourLine = L.polyline(allPoints, {
-                    color: '#059669',
-                    weight: 3,
-                    opacity: 0.7,
-                    dashArray: '8, 6',
-                    lineCap: 'round'
-                }).addTo(map);
-
-                window._optimizationMarkers.push(detourLine);
-            }
+            persistUsers();
         }
 
-        /**
-         * updateCapacityBar(data)
-         * Dynamically updates the pooling sidebar capacity bar and stats.
-         */
-        function updateCapacityBar(data) {
-            // Update profit boost stat
-            const profitEl = document.querySelector('.pooling-stat-card.profit .ps-value');
-            if (profitEl) {
-                profitEl.textContent = `+$${data.total_profit_boost.toFixed(0)}`;
-            }
-
-            // Update CO2 stat
-            const co2El = document.querySelector('.pooling-stat-card.co2 .ps-value');
-            if (co2El) {
-                co2El.textContent = `-${data.co2_saved_kg.toFixed(1)} kg`;
-            }
-
-            // Update capacity label
-            const capLabel = document.querySelector('.greedy-bar-label .capacity');
-            if (capLabel) {
-                capLabel.textContent = `${data.new_load_kg.toFixed(0)} / 2,400 kg`;
-            }
-
-            // Update bar segments
-            const addedWeight = data.selected_cargo.reduce((s, c) => s + c.weight_kg, 0);
-            const totalCap = 2400;
-            const applesPct = (1200 / totalCap * 100);
-            const onionsPct = (720 / totalCap * 100);
-            const newCargoPct = (addedWeight / totalCap * 100);
-            const emptyPct = Math.max(0, 100 - applesPct - onionsPct - newCargoPct);
-
-            const barContainer = document.querySelector('.greedy-bar');
-            if (barContainer) {
-                // Build new cargo segment name
-                const cargoNames = data.selected_cargo.map(c => c.product_name).join(', ');
-                barContainer.innerHTML = `
-                    <div class="greedy-segment apples" style="width:${applesPct}%;">🍎 Apples</div>
-                    <div class="greedy-segment onions" style="width:${onionsPct}%;">🧅 Onions</div>
-                    <div class="greedy-segment" style="width:${newCargoPct}%;background:linear-gradient(135deg,#059669,#10B981);color:#fff;font-size:0.65rem;padding:0 0.3rem;">📦 ${cargoNames}</div>
-                    ${emptyPct > 1 ? `<div class="greedy-segment empty" style="width:${emptyPct}%;">Empty</div>` : ''}
-                `;
-            }
+        function persistUsers() {
+            localStorage.setItem('daladan_users', JSON.stringify(registeredUsers));
         }
 
-        /** Open / Close Greedy Algo Modal */
-        function openGreedyModal() {
-            document.getElementById('greedy-modal').classList.add('open');
-            document.body.style.overflow = 'hidden';
+        function persistSession(user) {
+            localStorage.setItem('daladan_session', JSON.stringify(user));
         }
 
-        function closeGreedyModal() {
-            document.getElementById('greedy-modal').classList.remove('open');
-            document.body.style.overflow = '';
+        function clearSession() {
+            localStorage.removeItem('daladan_session');
+            currentUser = null;
         }
 
-        // Close modal on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeGreedyModal();
-                closeAISummaryModal();
+        // ─── Register ───
+        function registerUser() {
+            const username = document.getElementById('reg-username')?.value?.trim();
+            const email = document.getElementById('reg-email')?.value?.trim();
+            const password = document.getElementById('reg-password')?.value;
+            const roleEl = document.querySelector('.role-pill.selected');
+            const role = roleEl?.getAttribute('data-role') || 'producer';
+
+            if (!username || !email || !password) {
+                showToast('Please fill in all fields.', 'error');
+                return;
             }
-        });
-    </script>
 
-    <!-- ═══ AI Summary Modal ═══ -->
-    <div class="modal-overlay" id="ai-summary-modal" onclick="if(event.target===this)closeAISummaryModal()">
-        <div class="modal-content">
-            <div class="modal-header" style="background:linear-gradient(135deg,#5B21B6,#7C3AED);">
-                <div class="modal-header-left">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <h2>AI Deal Summary</h2>
-                </div>
-                <button class="modal-close" onclick="closeAISummaryModal()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="ai-summary-body">
-                <div style="text-align:center;padding:2rem 0;">
-                    <div
-                        style="width:36px;height:36px;border:3px solid #E5E7EB;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1rem;">
-                    </div>
-                    <p style="color:var(--text-secondary);margin:0;">Analyzing conversation…</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        /**
-         * sendMessage()
-         * Appends a new buyer message to the chat container.
-         */
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const chatBody = document.getElementById('chat-body');
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble buyer';
-            bubble.innerHTML = `
-                <div class="cb-sender"><i class="fa-solid fa-store" style="font-size:0.55rem;"></i> You (Korzinka Market)</div>
-                ${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                <div class="cb-time">Today, ${timeStr}</div>
-            `;
-
-            chatBody.appendChild(bubble);
-            input.value = '';
-            chatBody.scrollTop = chatBody.scrollHeight;
-            showToast('Message sent', 'success', 2000);
-        }
-
-        /**
-         * openAISummaryModal()
-         * Calls the real /api/ai/summarize-chat endpoint,
-         * then renders the structured AI summary into the modal.
-         */
-        async function openAISummaryModal() {
-            const modal = document.getElementById('ai-summary-modal');
-            const body = document.getElementById('ai-summary-body');
-
-            // Reset to loading
-            body.innerHTML = `
-                <div style="text-align:center;padding:2rem 0;">
-                    <div style="width:36px;height:36px;border:3px solid #E5E7EB;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1rem;"></div>
-                    <p style="color:var(--text-secondary);margin:0;">Analyzing conversation with AI…</p>
-                </div>
-            `;
-
-            modal.classList.add('open');
-            document.body.style.overflow = 'hidden';
-
-            try {
-                const response = await fetch('/api/ai/summarize-chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deal_number: 901 })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.detail || `API returned ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                // Build the action items HTML
-                const actionItemsHtml = (data.action_items || [])
-                    .map(item => `<li>${item}</li>`)
-                    .join('');
-
-                body.innerHTML = `
-                    <h3><i class="fa-solid fa-clipboard-list" style="color:#7C3AED;"></i> Deal #${data.deal_number} Summary</h3>
-                    <p style="margin-bottom:0.75rem;">${data.summary_text}</p>
-
-                    <div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:12px;padding:1.15rem;margin-bottom:1.25rem;">
-                        <div style="font-weight:700;font-size:0.82rem;color:#5B21B6;margin-bottom:0.65rem;"><i class="fa-solid fa-handshake" style="margin-right:0.35rem;"></i> Negotiation Outcome</div>
-                        <ul style="margin:0;padding-left:1.25rem;font-size:0.82rem;color:#4C1D95;line-height:1.8;">
-                            <li><strong>Product:</strong> ${data.title}</li>
-                            ${data.agreed_price ? `<li><strong>Agreed Price:</strong> ${data.agreed_price}</li>` : ''}
-                            ${data.quantity ? `<li><strong>Quantity:</strong> ${data.quantity}</li>` : ''}
-                            ${data.total_value ? `<li><strong>Total Value:</strong> ${data.total_value}</li>` : ''}
-                        </ul>
-                    </div>
-
-                    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:1.15rem;margin-bottom:1.25rem;">
-                        <div style="font-weight:700;font-size:0.82rem;color:#065F46;margin-bottom:0.65rem;"><i class="fa-solid fa-truck-fast" style="margin-right:0.35rem;"></i> Logistics</div>
-                        <ul style="margin:0;padding-left:1.25rem;font-size:0.82rem;color:#064E3B;line-height:1.8;">
-                            ${data.driver_name ? `<li><strong>Driver:</strong> ${data.driver_name}</li>` : ''}
-                            ${data.pickup_time ? `<li><strong>Pickup/Loading:</strong> ${data.pickup_time}</li>` : ''}
-                            ${data.departure_time ? `<li><strong>Departure:</strong> ${data.departure_time}</li>` : ''}
-                            ${data.delivery_eta ? `<li><strong>ETA:</strong> ${data.delivery_eta}</li>` : ''}
-                            ${data.delivery_gate ? `<li><strong>Delivery Gate:</strong> ${data.delivery_gate}</li>` : ''}
-                        </ul>
-                    </div>
-
-                    ${actionItemsHtml ? `
-                    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.15rem;">
-                        <div style="font-weight:700;font-size:0.82rem;color:#92400E;margin-bottom:0.65rem;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:0.35rem;"></i> Action Items</div>
-                        <ul style="margin:0;padding-left:1.25rem;font-size:0.82rem;color:#78350F;line-height:1.8;">
-                            ${actionItemsHtml}
-                        </ul>
-                    </div>` : ''}
-                `;
-
-                showToast('AI summary generated!', 'ai', 3000);
-
-            } catch (err) {
-                body.innerHTML = `
-                    <div style="text-align:center;padding:2rem 0;">
-                        <i class="fa-solid fa-circle-exclamation" style="font-size:2rem;color:#DC2626;margin-bottom:1rem;display:block;"></i>
-                        <p style="color:#991B1B;margin:0;font-weight:600;">Failed to generate summary</p>
-                        <p style="color:var(--text-secondary);margin:0.5rem 0 0;font-size:0.85rem;">${err.message}</p>
-                    </div>
-                `;
-                console.error('AI summary error:', err);
+            if (username.length < 3) {
+                showToast('Username must be at least 3 characters.', 'error');
+                return;
             }
-        }
 
-        function closeAISummaryModal() {
-            document.getElementById('ai-summary-modal').classList.remove('open');
-            document.body.style.overflow = '';
-        }
+            // Check duplicate username
+            if (registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+                showToast('Username already taken! Please choose another.', 'error');
+                return;
+            }
 
-        /**
-         * showToast(message, type, duration)
-         * Creates a slide-up toast notification.
-         * @param {string} message — text to display
-         * @param {string} type — 'success' | 'info' | 'warning' | 'ai'
-         * @param {number} duration — ms before auto-dismiss (default 3500)
-         */
-        function showToast(message, type = 'info', duration = 3500) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            // Check duplicate email
+            if (registeredUsers.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+                showToast('An account with this email already exists.', 'error');
+                return;
+            }
 
-            const icons = {
-                success: 'fa-solid fa-circle-check',
-                info: 'fa-solid fa-circle-info',
-                warning: 'fa-solid fa-triangle-exclamation',
-                ai: 'fa-solid fa-wand-magic-sparkles'
+            const newUser = {
+                username,
+                email,
+                password, // In production: hash this
+                role,
+                fullName: username.charAt(0).toUpperCase() + username.slice(1),
+                createdAt: new Date().toISOString()
             };
 
-            toast.innerHTML = `
-                <div class="toast-icon"><i class="${icons[type] || icons.info}"></i></div>
-                <span>${message}</span>
-                <div class="toast-progress" style="animation-duration:${duration}ms;"></div>
-            `;
-            toast.style.position = 'relative';
-            toast.style.overflow = 'hidden';
+            registeredUsers.push(newUser);
+            persistUsers();
 
-            container.appendChild(toast);
+            showToast(`Account created! Welcome, ${newUser.fullName}`, 'success');
+
+            // Auto-login after registration
+            currentUser = { username: newUser.username, role: newUser.role, fullName: newUser.fullName, email: newUser.email };
+            persistSession(currentUser);
+            onAuthSuccess();
+        }
+
+        // ─── Login ───
+        function loginUser() {
+            const username = document.getElementById('login-username')?.value?.trim();
+            const password = document.getElementById('login-password')?.value;
+
+            if (!username || !password) {
+                showToast('Please enter username and password.', 'error');
+                return;
+            }
+
+            const user = registeredUsers.find(
+                u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+            );
+
+            if (!user) {
+                showToast('Invalid username or password.', 'error');
+                return;
+            }
+
+            currentUser = { username: user.username, role: user.role, fullName: user.fullName, email: user.email };
+            persistSession(currentUser);
+
+            showToast(`Welcome back, ${currentUser.fullName}!`, 'success');
+            onAuthSuccess();
+        }
+
+        // ─── Logout ───
+        function logoutUser() {
+            if (!confirm('Sign out of Daladan?')) return;
+
+            clearSession();
+            showToast('Signed out successfully.', 'info');
+
+            // Show auth modal, reset UI
+            document.getElementById('auth-modal')?.classList.add('open');
+            document.getElementById('nav-user').style.display = 'none';
+
+            // Clear form fields
+            ['login-username', 'login-password'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+
+        // ─── Post-Auth Success Handler ───
+        function onAuthSuccess() {
+            // Hide auth modal
+            document.getElementById('auth-modal')?.classList.remove('open');
+
+            // Update navbar avatar
+            updateAuthUI();
+
+            // Switch to the user's role view
+            if (typeof switchView === 'function') {
+                switchView(currentUser.role);
+            }
+        }
+
+        // ─── Update Navbar UI ───
+        function updateAuthUI() {
+            const navUser = document.getElementById('nav-user');
+            const avatar = document.getElementById('nav-user-avatar');
+            const name = document.getElementById('nav-user-name');
+            const role = document.getElementById('nav-user-role');
+
+            if (currentUser) {
+                if (navUser) navUser.style.display = 'flex';
+                if (avatar) avatar.textContent = currentUser.fullName.charAt(0).toUpperCase();
+                if (name) name.textContent = currentUser.fullName;
+                if (role) role.textContent = currentUser.role;
+            } else {
+                if (navUser) navUser.style.display = 'none';
+            }
+        }
+
+        // ─── Tab Switcher ───
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                document.querySelector('.auth-tab:first-child')?.classList.add('active');
+                document.getElementById('auth-login-form')?.classList.add('active');
+            } else {
+                document.querySelector('.auth-tab:last-child')?.classList.add('active');
+                document.getElementById('auth-register-form')?.classList.add('active');
+            }
+        }
+
+        // ─── Role Pill Selector ───
+        function selectRolePill(el) {
+            document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // ─── Init Auth on Page Load ───
+        function initAuth() {
+            seedDemoUsers();
+
+            if (currentUser) {
+                // Resume session
+                updateAuthUI();
+                if (typeof switchView === 'function') switchView(currentUser.role);
+            } else {
+                // Show auth modal
+                document.getElementById('auth-modal')?.classList.add('open');
+            }
+        }
+
+        // Run auth check after DOM is ready
+        document.addEventListener('DOMContentLoaded', initAuth);
+    </script>
+
+    <!-- ═══ Checkout flow Scripts ═══ -->
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ CENTRALIZED GLOBAL STATE & 3-WAY INTERACTION ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        // ─── Global Inventory State (Single Source of Truth) ───
+        const inventoryState = [
+            {
+                id: 'inv-apples',
+                name: 'Red Apples — Grade A',
+                slug: 'apples',
+                variety: 'Grade A Organic',
+                quantity: 1800,
+                price: 4.50,
+                region: 'Fergana',
+                organic: true,
+                rating: 4.8,
+                batch: '#1041',
+                harvestDate: 'Feb 23',
+                producerTransport: false,
+                seller: 'Fergana Organic Farm',
+                phone: '+998901234567',
+                img: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600&h=300&fit=crop',
+                category: 'fruits'
+            },
+            {
+                id: 'inv-tomatoes',
+                name: 'Cherry Tomatoes — Vine',
+                slug: 'tomatoes',
+                variety: 'Vine-Ripened Organic',
+                quantity: 2400,
+                price: 3.10,
+                region: 'Tashkent',
+                organic: true,
+                rating: 4.9,
+                batch: '#1043',
+                harvestDate: 'Feb 26',
+                producerTransport: true,
+                seller: 'Green Valley Greenhouses',
+                phone: '+998903456789',
+                img: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=300&fit=crop',
+                category: 'vegetables'
+            }
+        ];
+
+        // ─── Deals State (Tracks active negotiations) ───
+        const dealsState = [];
+
+        // ─── Shopping Cart ───
+        let cart = [];
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ SYNC DISPLAYS — Re-render from inventoryState ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function syncDisplays() {
+            renderProducerInventory();
+            renderRetailerProducts();
+        }
+
+        function renderProducerInventory() {
+            const grid = document.getElementById('inventory-grid');
+            if (!grid) return;
+
+            grid.innerHTML = inventoryState.map(item => `
+                <div class="inventory-card" id="inv-card-${item.slug}" style="animation: fadeInUp 0.4s ease forwards;">
+                    <div class="inv-card-img" style="background-image:url('${item.img}');">
+                        <div class="inv-badge-row">
+                            ${item.organic ? '<span class="inv-badge organic"><i class="fa-solid fa-leaf" style="font-size:0.6rem;"></i> Organic</span>' : ''}
+                            <span class="inv-badge batch">Batch ${item.batch}</span>
+                        </div>
+                    </div>
+                    <div class="inv-card-body">
+                        <div class="inv-card-head">
+                            <span class="inv-card-name">${item.name}</span>
+                            <span class="inv-quality"><i class="fa-solid fa-star"></i> ${item.rating}</span>
+                        </div>
+                        <div class="inv-meta-grid">
+                            <div class="inv-meta">
+                                <div class="im-value">${item.quantity.toLocaleString()} kg</div>
+                                <div class="im-label">In Stock</div>
+                            </div>
+                            <div class="inv-meta">
+                                <div class="im-value">$${item.price.toFixed(2)}/kg</div>
+                                <div class="im-label">Price</div>
+                            </div>
+                            <div class="inv-meta">
+                                <div class="im-value">${item.harvestDate}</div>
+                                <div class="im-label">Harvested</div>
+                            </div>
+                        </div>
+                        <div class="inv-card-actions">
+                            <button class="inv-btn inv-btn-primary"><i class="fa-solid fa-paper-plane"></i> Ship Now</button>
+                            ${item.slug === 'apples' || item.slug === 'tomatoes' ? `
+                            <button class="inv-btn inv-btn-ai" id="ai-btn-${item.slug}" onclick="aiOptimize('${item.slug}')">
+                                <span class="spinner"></span>
+                                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Optimize</span>
+                                <span class="loading-text">Generating…</span>
+                            </button>` : ''}
+                        </div>
+                        <div class="ai-result" id="ai-result-${item.slug}"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRetailerProducts() {
+            const grid = document.getElementById('product-grid');
+            if (!grid) return;
+
+            // Keep existing static cards then append dynamic ones
+            // We'll track which items from inventoryState are NEW (not the originals)
+            const existingCards = grid.querySelectorAll('.product-card[data-dynamic="true"]');
+            existingCards.forEach(card => card.remove());
+
+            // Only render items that were added dynamically (beyond the 2 seed items)
+            const dynamicItems = inventoryState.filter(item =>
+                item.id !== 'inv-apples' && item.id !== 'inv-tomatoes'
+            );
+
+            dynamicItems.forEach(item => {
+                const transportBadge = item.producerTransport
+                    ? '<div style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#ECFDF5;color:#059669;"><i class="fa-solid fa-truck-fast" style="font-size:0.6rem;"></i> Seller offers delivery</div>'
+                    : '<div style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border-radius:6px;font-size:0.7rem;font-weight:600;margin-bottom:0.4rem;background:#FEF3C7;color:#B45309;"><i class="fa-solid fa-truck" style="font-size:0.6rem;"></i> Requires driver</div>';
+
+                const cardHTML = `
+                    <div class="product-card" data-name="${item.name}" data-category="${item.category}" data-dynamic="true" style="animation: fadeInUp 0.4s ease forwards;">
+                        <div class="product-img-wrap">
+                            <img src="${item.img}" alt="${item.name}" loading="lazy" />
+                            <div class="product-img-badges">
+                                <span class="product-region-tag"><i class="fa-solid fa-location-dot" style="font-size:0.55rem;"></i> ${item.region}</span>
+                                ${item.organic ? '<span class="product-organic-tag"><i class="fa-solid fa-leaf" style="font-size:0.5rem;"></i> Organic</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="product-card-body">
+                            <div class="product-name">${item.name}</div>
+                            ${transportBadge}
+                            <div class="product-seller">
+                                <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                                ${item.seller}
+                            </div>
+                            <div class="product-meta-row">
+                                <div class="product-meta-chip">
+                                    <div class="pmc-value">$${item.price.toFixed(2)}/kg</div>
+                                    <div class="pmc-label">Price</div>
+                                </div>
+                                <div class="product-meta-chip">
+                                    <div class="pmc-value">${item.quantity.toLocaleString()} kg</div>
+                                    <div class="pmc-label">Available</div>
+                                </div>
+                                <div class="product-meta-chip">
+                                    <div class="pmc-value">⭐ ${item.rating}</div>
+                                    <div class="pmc-label">Rating</div>
+                                </div>
+                            </div>
+                            <div class="product-card-footer">
+                                <button class="product-cart-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.seller.replace(/'/g, "\\'")}', '${item.phone}', ${item.producerTransport})"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                                <button class="product-fav-btn" onclick="this.innerHTML='<i class=\\'fa-solid fa-heart\\' style=\\'color:#EF4444;\\'></i>';showToast('Added to wishlist ❤️','success')"><i class="fa-regular fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ ADD NEW HARVEST (Producer → State → Both Displays) ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function addNewHarvest(productData) {
+            // Generate a unique id and slug
+            const slug = productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+            const id = `inv-${slug}-${Date.now()}`;
+
+            const newItem = {
+                id,
+                name: productData.name,
+                slug,
+                variety: productData.variety || 'Standard',
+                quantity: productData.quantity,
+                price: productData.price,
+                region: productData.region,
+                organic: productData.organic || false,
+                rating: (4.5 + Math.random() * 0.5).toFixed(1),
+                batch: '#' + (1044 + inventoryState.length),
+                harvestDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                producerTransport: productData.producerTransport || false,
+                seller: productData.seller || 'My Farm',
+                phone: productData.phone || '+998901234567',
+                img: productData.img || `https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&h=300&fit=crop`,
+                category: productData.category || 'vegetables'
+            };
+
+            inventoryState.push(newItem);
+            syncDisplays();
+
+            showToast(`${newItem.name} (${newItem.quantity} kg) added to inventory!`, 'success');
+            return newItem;
+        }
+
+        // Form submission from the Harvest Modal
+        function submitHarvest() {
+            const name = document.getElementById('harvest-crop-name')?.value?.trim();
+            const quantity = parseFloat(document.getElementById('harvest-quantity')?.value);
+            const price = parseFloat(document.getElementById('harvest-price')?.value);
+            const region = document.getElementById('harvest-region')?.value;
+            const selfTransport = document.getElementById('harvest-self-transport')?.checked || false;
+
+            if (!name || !quantity || !price) {
+                showToast('Please fill in crop name, quantity, and price.', 'error');
+                return;
+            }
+
+            // Determine category from name heuristics
+            const nameLower = name.toLowerCase();
+            let category = 'vegetables';
+            if (nameLower.includes('apple') || nameLower.includes('pomegranate') || nameLower.includes('grape') || nameLower.includes('cherry') || nameLower.includes('peach')) category = 'fruits';
+            if (nameLower.includes('wheat') || nameLower.includes('rice') || nameLower.includes('barley')) category = 'grains';
+            if (nameLower.includes('onion') || nameLower.includes('carrot') || nameLower.includes('potato')) category = 'root-crops';
+
+            addNewHarvest({
+                name,
+                quantity,
+                price,
+                region,
+                producerTransport: selfTransport,
+                category,
+                seller: 'My Farm',
+                phone: '+998901234567'
+            });
+
+            // Close modal and reset form
+            document.getElementById('harvest-modal').classList.remove('open');
+            document.getElementById('harvest-crop-name').value = '';
+            document.getElementById('harvest-quantity').value = '';
+            document.getElementById('harvest-price').value = '';
+            document.getElementById('harvest-self-transport').checked = false;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ ACCEPT MARKET NEED (Producer accepts a buyer request) ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function acceptMarketNeed(productName, buyerName, quantity, pricePerKg) {
+            const dealId = 'DEAL-' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+
+            const deal = {
+                dealId,
+                productName,
+                buyerName,
+                quantity,
+                pricePerKg,
+                totalEscrow: quantity * pricePerKg,
+                status: 'negotiating',
+                transportAssigned: false,
+                chatMessages: []
+            };
+            dealsState.push(deal);
+
+            // Build a mock cart-like item for chat setup
+            const item = {
+                name: productName,
+                price: pricePerKg,
+                quantity,
+                seller: buyerName,
+                phone: '+998 90 ' + Math.floor(1000000 + Math.random() * 9000000),
+                producerTransport: false
+            };
+
+            setupNewDealChat(item, dealId);
+
+            // Post to driver board for transport
+            postToDriverBoard(item, dealId);
+
+            showToast(`Order accepted! Deal ${dealId} created with ${buyerName}`, 'success');
+
+            // Switch to Messages view to begin negotiation
+            setTimeout(() => switchView('messages'), 400);
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ CART & CHECKOUT FLOW ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function addToCart(name, price, seller, phone = '+998XXXXXXXXX', producerTransport = false) {
+            cart.push({ name, price, seller, phone, producerTransport, quantity: 100 });
+
+            const floatingCart = document.getElementById('floating-cart');
+            if (floatingCart) floatingCart.style.display = 'flex';
+
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.innerText = cart.length;
+                badge.style.display = 'flex';
+                badge.style.transform = 'scale(1.2)';
+                setTimeout(() => badge.style.transform = 'scale(1)', 200);
+            }
+
+            showToast(`${name} added to cart!`, 'success');
+        }
+
+        function openCartModal() {
+            const modal = document.getElementById('cart-modal');
+            const container = document.getElementById('cart-items-container');
+            const totalDisplay = document.getElementById('cart-total');
+
+            if (container) container.innerHTML = '';
+
+            if (cart.length === 0 && container) {
+                container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-secondary);">Your cart is empty.</div>';
+                if (totalDisplay) totalDisplay.innerText = '$0.00';
+            } else {
+                let total = 0;
+                cart.forEach((item) => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    if (container) {
+                        container.innerHTML += `
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;background:var(--bg-color);border-radius:var(--radius-md);border:1px solid var(--border-color);">
+                                <div>
+                                    <div style="font-weight:500;color:var(--text-primary);margin-bottom:0.25rem;">${item.name}</div>
+                                    <div style="font-size:0.8rem;color:var(--text-secondary);"><i class="fa-solid fa-store" style="font-size:0.7rem;margin-right:0.25rem;"></i>${item.seller}</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="font-weight:600;color:var(--text-primary);">$${itemTotal.toFixed(2)}</div>
+                                    <div style="font-size:0.8rem;color:var(--text-secondary);">${item.quantity} kg @ $${item.price.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                if (totalDisplay) totalDisplay.innerText = '$' + total.toFixed(2);
+            }
+
+            if (modal) modal.classList.add('open');
+        }
+
+        function closeCartModal() {
+            const modal = document.getElementById('cart-modal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        let cartTotalValue = 0;
+
+        function proceedToEscrow() {
+            if (cart.length === 0) {
+                showToast('Cart is empty!', 'error');
+                return;
+            }
+            cartTotalValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totalElement = document.getElementById('payment-total');
+            if (totalElement) totalElement.innerText = '$' + cartTotalValue.toFixed(2);
+
+            closeCartModal();
+            const paymentModal = document.getElementById('payment-modal');
+            if (paymentModal) paymentModal.classList.add('open');
+        }
+
+        function closePaymentModal() {
+            const paymentModal = document.getElementById('payment-modal');
+            if (paymentModal) paymentModal.classList.remove('open');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ CONFIRM PAYMENT (Retailer checkout → Deals + Chat) ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function confirmPayment() {
+            const btn = document.getElementById('confirm-payment-btn');
+            const originalText = btn ? btn.innerHTML : '';
+
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Payment...';
+                btn.style.opacity = '0.8';
+                btn.disabled = true;
+            }
+
+            showToast('Processing Payment...', 'info', 2000);
 
             setTimeout(() => {
-                toast.classList.add('dismissing');
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
+                let driverJobCreated = false;
+
+                // Read transport method from payment modal radio group
+                const transportMethod = document.querySelector('input[name="transport-method"]:checked')?.value || 'driver_network';
+
+                cart.forEach(item => {
+                    const dealId = 'DEAL-' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+
+                    // Determine transport status label
+                    let transportStatus = 'Awaiting Driver Assignment';
+                    if (transportMethod === 'producer_delivery') transportStatus = 'Handled by Producer';
+                    if (transportMethod === 'retailer_pickup') transportStatus = 'Retailer Self-Pickup';
+
+                    // Register deal in global state
+                    dealsState.push({
+                        dealId,
+                        productName: item.name,
+                        buyerName: currentUser?.fullName || 'Retailer',
+                        quantity: item.quantity,
+                        pricePerKg: item.price,
+                        totalEscrow: item.price * item.quantity,
+                        status: 'paid',
+                        transportMethod,
+                        transportAssigned: transportMethod !== 'driver_network',
+                        chatMessages: []
+                    });
+
+                    // Pass transportMethod to chat setup
+                    item.transportMethod = transportMethod;
+                    setupNewDealChat(item, dealId);
+
+                    // ★ Conditional Transport Routing
+                    if (transportMethod === 'driver_network') {
+                        // Route to driver board
+                        postToDriverBoard(item, dealId);
+                        driverJobCreated = true;
+                    } else if (transportMethod === 'producer_delivery') {
+                        // Bypass driver board — producer handles it
+                        setTimeout(() => {
+                            injectChatMessage(dealId, 'system',
+                                '🌾 Transport handled by Producer — no driver assignment needed. Seller will deliver directly.');
+                        }, 800);
+                    } else if (transportMethod === 'retailer_pickup') {
+                        // Bypass driver board — retailer picks up
+                        setTimeout(() => {
+                            injectChatMessage(dealId, 'system',
+                                '🏪 Retailer self-pickup confirmed — no driver assignment needed. Buyer will collect from farm.');
+                        }, 800);
+                    }
+                });
+
+                closePaymentModal();
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+
+                cart = [];
+                const badge = document.getElementById('cart-badge');
+                if (badge) { badge.innerText = '0'; badge.style.display = 'none'; }
+
+                const floatingCart = document.getElementById('floating-cart');
+                if (floatingCart) floatingCart.style.display = 'none';
+
+                if (driverJobCreated) {
+                    setTimeout(() => showToast('Driver network notified of new available job!', 'info', 3000), 500);
+                }
+
+                setTimeout(() => switchView('messages'), 500);
+            }, 1200);
         }
 
-        /**
-         * activateFilter(el)
-         * Toggles the active state on filter pills.
-         */
-        function activateFilter(el) {
-            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-            el.classList.add('active');
-            filterMarketplace();
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ CHAT SYSTEM ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function setupNewDealChat(item, dealId) {
+            const list = document.getElementById('deal-groups-list');
+            const totalEscrow = (item.price * item.quantity).toFixed(2);
+
+            // Resolve transport status from transportMethod (3-way) or legacy boolean
+            let transportStatus = 'Awaiting Driver Assignment';
+            if (item.transportMethod === 'producer_delivery' || item.producerTransport === true) {
+                transportStatus = 'Handled by Producer';
+            } else if (item.transportMethod === 'retailer_pickup') {
+                transportStatus = 'Retailer Self-Pickup';
+            }
+
+            // Add deal-group item to sidebar
+            const sidebarHTML = `
+                <div class="deal-group-item" data-deal-id="${dealId}" onclick="loadDealChat('${dealId}')" style="animation: fadeInUp 0.4s ease forwards;">
+                    <div class="dg-avatar" style="background:#ECFDF5;color:#059669;"><i class="fa-solid fa-leaf"></i></div>
+                    <div class="dg-info">
+                        <div class="dg-name">Deal ${dealId.slice(-6)} — ${item.name}</div>
+                        <div class="dg-preview">Escrow: $${totalEscrow}</div>
+                    </div>
+                    <div class="dg-meta">
+                        <div class="dg-time">Now</div>
+                        <div class="dg-unread">1</div>
+                    </div>
+                </div>
+            `;
+            if (list) list.insertAdjacentHTML('afterbegin', sidebarHTML);
+
+            // Update deal-groups count
+            const dgCount = list ? list.querySelectorAll('.deal-group-item').length : 5;
+            const countBadge = document.querySelector('.dg-count');
+            if (countBadge) countBadge.innerText = dgCount;
+
+            // Build chat body
+            const chatBodyHTML = `
+                <div class="chat-system-msg"><span>Deal ${dealId} created — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></div>
+
+                <div class="chat-system-msg" style="margin-bottom:1rem;">
+                    <span style="display:block;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:10px;padding:1rem;text-align:center;">
+                        <i class="fa-solid fa-shield-halved" style="color:var(--accent-blue);font-size:1.1rem;"></i><br>
+                        <strong>Escrow: $${totalEscrow}</strong><br>
+                        <span style="font-size:0.8rem;color:var(--text-secondary);">
+                            Producer Phone: ${item.phone}<br>
+                            Transport: ${transportStatus}
+                        </span>
+                    </span>
+                </div>
+
+                <div class="chat-bubble seller" style="animation: fadeInUp 0.3s ease forwards; animation-delay:0.5s; opacity:0;">
+                    <div class="cb-sender"><i class="fa-solid fa-leaf" style="font-size:0.55rem;"></i> ${item.seller}</div>
+                    Assalomu alaykum! I have received your secure escrow deposit for $${totalEscrow}. The ${item.name} are ready for pickup.
+                    <div class="cb-time">Just now</div>
+                </div>
+            `;
+
+            // Store messages in dealsState
+            const deal = dealsState.find(d => d.dealId === dealId);
+            if (deal) {
+                deal.chatMessages.push(
+                    { sender: 'system', text: `Escrow $${totalEscrow} funded.` },
+                    { sender: 'seller', text: `The ${item.name} are ready for pickup.` }
+                );
+            }
+
+            const chatBody = document.getElementById('chat-body');
+            if (chatBody) {
+                const items = Array.from(chatBody.children);
+                items.forEach(el => el.remove());
+                chatBody.insertAdjacentHTML('beforeend', chatBodyHTML);
+                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+            }
+
+            // Update chat header
+            const chatHeader = document.querySelector('.chat-header-left h3');
+            if (chatHeader) chatHeader.textContent = `🤝 Deal ${dealId.slice(-6)} — ${item.name}`;
+
+            const chatMembers = document.querySelector('.chat-members');
+            if (chatMembers) chatMembers.textContent = `${item.seller} · Retailer · Awaiting Driver`;
         }
 
-        /**
-         * filterMarketplace()
-         * Combines the search query and active category filter to show/hide product cards.
-         * Both filters work together — a card must match BOTH to be shown.
-         */
-        let _activeCategory = 'all';
+        // Load a specific deal's chat when clicking sidebar items
+        function loadDealChat(dealId) {
+            // Highlight active sidebar item
+            document.querySelectorAll('.deal-group-item').forEach(el => el.classList.remove('active'));
+            const target = document.querySelector(`.deal-group-item[data-deal-id="${dealId}"]`);
+            if (target) {
+                target.classList.add('active');
+                const unread = target.querySelector('.dg-unread');
+                if (unread) unread.remove();
+            }
 
-        function filterMarketplace() {
-            const searchInput = document.getElementById('marketplace-search-input');
-            const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+            const deal = dealsState.find(d => d.dealId === dealId);
+            if (!deal) return;
 
-            // Get active category from the currently active pill
-            const activePill = document.querySelector('.filter-pill.active');
-            _activeCategory = activePill ? (activePill.dataset.category || 'all') : 'all';
+            const chatBody = document.getElementById('chat-body');
+            if (!chatBody) return;
 
-            const cards = document.querySelectorAll('.product-card');
-            let visibleCount = 0;
+            // Rebuild chat from dealsState messages
+            chatBody.innerHTML = `
+                <div class="chat-system-msg"><span>Deal ${dealId} — ${deal.productName}</span></div>
+            `;
 
-            cards.forEach(card => {
-                const name = (card.dataset.name || '').toLowerCase();
-                const category = (card.dataset.category || '').toLowerCase();
-                // Also search within the card's text content (seller, region, etc.)
-                const fullText = card.textContent.toLowerCase();
-
-                const matchesSearch = !query || name.includes(query) || fullText.includes(query);
-                const matchesCategory = _activeCategory === 'all' || category === _activeCategory;
-
-                if (matchesSearch && matchesCategory) {
-                    card.style.display = '';
-                    // Add fade-in animation
-                    card.style.animation = 'none';
-                    card.offsetHeight; // trigger reflow
-                    card.style.animation = 'fadeInUp 0.3s ease forwards';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
+            deal.chatMessages.forEach(msg => {
+                if (msg.sender === 'system') {
+                    chatBody.innerHTML += `<div class="chat-system-msg"><span>${msg.text}</span></div>`;
+                } else if (msg.sender === 'seller') {
+                    chatBody.innerHTML += `
+                        <div class="chat-bubble seller">
+                            <div class="cb-sender"><i class="fa-solid fa-leaf" style="font-size:0.55rem;"></i> Producer</div>
+                            ${msg.text}
+                            <div class="cb-time">${msg.time || 'Just now'}</div>
+                        </div>`;
+                } else if (msg.sender === 'driver') {
+                    chatBody.innerHTML += `
+                        <div class="chat-bubble driver">
+                            <div class="cb-sender"><i class="fa-solid fa-truck-fast" style="font-size:0.55rem;"></i> Driver Alisher K.</div>
+                            ${msg.text}
+                            <div class="cb-time">${msg.time || 'Just now'}</div>
+                        </div>`;
+                } else if (msg.sender === 'buyer') {
+                    chatBody.innerHTML += `
+                        <div class="chat-bubble buyer">
+                            <div class="cb-sender"><i class="fa-solid fa-store" style="font-size:0.55rem;"></i> ${deal.buyerName}</div>
+                            ${msg.text}
+                            <div class="cb-time">${msg.time || 'Just now'}</div>
+                        </div>`;
                 }
             });
 
-            // Show a "no results" message if nothing matches
-            let noResults = document.getElementById('marketplace-no-results');
-            if (visibleCount === 0) {
-                if (!noResults) {
-                    noResults = document.createElement('div');
-                    noResults.id = 'marketplace-no-results';
-                    noResults.style.cssText = 'grid-column:1/-1;text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.5);font-size:1.1rem;';
-                    noResults.innerHTML = '<i class="fa-solid fa-search" style="font-size:2rem;margin-bottom:1rem;display:block;opacity:0.3;"></i>No products match your search.';
-                    document.querySelector('.product-grid').appendChild(noResults);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            const chatHeader = document.querySelector('.chat-header-left h3');
+            if (chatHeader) chatHeader.textContent = `🤝 Deal ${dealId.slice(-6)} — ${deal.productName}`;
+        }
+
+        // Inject a chat message into a deal's conversation
+        function injectChatMessage(dealId, sender, text) {
+            const deal = dealsState.find(d => d.dealId === dealId);
+            if (!deal) return;
+
+            const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            deal.chatMessages.push({ sender, text, time });
+
+            // If this deal is currently being viewed in the chat, append the bubble live
+            const chatBody = document.getElementById('chat-body');
+            const activeDeal = document.querySelector('.deal-group-item.active');
+            const activeDealId = activeDeal?.getAttribute('data-deal-id');
+
+            if (activeDealId === dealId && chatBody) {
+                let bubbleHTML = '';
+                if (sender === 'driver') {
+                    bubbleHTML = `
+                        <div class="chat-bubble driver" style="animation: fadeInUp 0.3s ease forwards;">
+                            <div class="cb-sender"><i class="fa-solid fa-truck-fast" style="font-size:0.55rem;"></i> Driver Alisher K.</div>
+                            ${text}
+                            <div class="cb-time">${time}</div>
+                        </div>`;
+                } else if (sender === 'system') {
+                    bubbleHTML = `<div class="chat-system-msg" style="animation: fadeInUp 0.3s ease forwards;"><span>${text}</span></div>`;
+                } else if (sender === 'seller') {
+                    bubbleHTML = `
+                        <div class="chat-bubble seller" style="animation: fadeInUp 0.3s ease forwards;">
+                            <div class="cb-sender"><i class="fa-solid fa-leaf" style="font-size:0.55rem;"></i> Producer</div>
+                            ${text}
+                            <div class="cb-time">${time}</div>
+                        </div>`;
                 }
-                noResults.style.display = 'block';
-            } else if (noResults) {
-                noResults.style.display = 'none';
+                chatBody.insertAdjacentHTML('beforeend', bubbleHTML);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            // Update sidebar preview
+            const sidebarItem = document.querySelector(`.deal-group-item[data-deal-id="${dealId}"]`);
+            if (sidebarItem) {
+                const preview = sidebarItem.querySelector('.dg-preview');
+                if (preview) preview.textContent = text.substring(0, 40) + (text.length > 40 ? '…' : '');
+                const timeEl = sidebarItem.querySelector('.dg-time');
+                if (timeEl) timeEl.textContent = 'Now';
             }
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ DRIVER JOB BOARD ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function postToDriverBoard(item, dealId) {
+            const container = document.getElementById('freight-list') || document.getElementById('available-jobs-list');
+            const badge = document.getElementById('freight-badge');
+            const noMsg = document.getElementById('no-freight-msg');
+
+            if (noMsg) noMsg.style.display = 'none';
+
+            const routes = ["Samarkand → Tashkent", "Fergana → Andijan", "Bukhara → Navoi", "Namangan → Tashkent"];
+            const route = routes[Math.floor(Math.random() * routes.length)];
+            const payout = Math.floor(item.quantity * 0.12);
+
+            const jobHTML = `
+                <div class="placeholder-row" id="${dealId}" style="display:flex;align-items:center;padding:0.75rem;border-bottom:1px solid var(--border-color);gap:0.75rem;animation:fadeInUp 0.4s ease forwards;">
+                    <div class="placeholder-avatar" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;background:var(--harvest-amber);color:white;">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <div class="placeholder-text" style="flex:1;">
+                        <div class="name" style="font-weight:600;font-size:0.9rem;color:var(--text-primary);margin-bottom:0.2rem;">${item.name} Transport (${item.quantity} kg)</div>
+                        <div class="desc" style="font-size:0.75rem;color:var(--text-secondary);">Pickup: ${route} &bull; Est. Payout: $${payout}</div>
+                    </div>
+                    <button onclick="acceptFreight('${dealId}', '${item.name.replace(/'/g, "\\'")}')" style="padding:0.4rem 0.8rem;border-radius:8px;border:none;background:var(--agro-green);color:white;font-weight:600;cursor:pointer;font-size:0.75rem;transition:background 0.2s;">
+                        Accept Job
+                    </button>
+                </div>
+            `;
+
+            if (container) container.insertAdjacentHTML('afterbegin', jobHTML);
+            if (badge) {
+                let current = parseInt(badge.innerText) || 0;
+                badge.innerText = `${current + 1} New`;
+                badge.style.display = 'inline-flex';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ░░░ ACCEPT FREIGHT (Driver → Deliveries + Chat Injection) ░░░
+        // ═══════════════════════════════════════════════════════════
+
+        function acceptFreight(dealId, productName) {
+            // 1. Remove job from available list
+            const jobRow = document.getElementById(dealId);
+            if (jobRow) {
+                jobRow.style.animation = 'toastOut 0.3s ease-in forwards';
+                setTimeout(() => jobRow.remove(), 300);
+            }
+
+            // 2. Update badge count
+            const badge = document.getElementById('freight-badge');
+            if (badge) {
+                let current = parseInt(badge.innerText) || 0;
+                current = Math.max(0, current - 1);
+                if (current === 0) {
+                    badge.style.display = 'none';
+                    const noMsg = document.getElementById('no-freight-msg');
+                    const freightList = document.getElementById('freight-list');
+                    if (noMsg && freightList && freightList.querySelectorAll('.placeholder-row').length <= 1) {
+                        setTimeout(() => { noMsg.style.display = 'block'; }, 350);
+                    }
+                } else {
+                    badge.innerText = `${current} New`;
+                }
+            }
+
+            // 3. Inject into Today's Deliveries
+            const freightContainer = document.getElementById('available-freight-container');
+            let deliveriesCard = freightContainer ? freightContainer.nextElementSibling : null;
+
+            if (deliveriesCard) {
+                const newRow = `
+                    <div class="placeholder-row" style="animation:fadeInUp 0.4s ease forwards;">
+                        <div class="placeholder-avatar" style="background:#FFFBEB;color:var(--harvest-amber);"><i class="fa-solid fa-clock"></i></div>
+                        <div class="placeholder-text">
+                            <div class="name">${productName} Transport</div>
+                            <div class="desc">Accepted just now · Awaiting pickup</div>
+                        </div>
+                        <span class="placeholder-status" style="background:#FFFBEB;color:var(--harvest-amber);">In Queue</span>
+                    </div>
+                `;
+                deliveriesCard.insertAdjacentHTML('beforeend', newRow);
+
+                const stopsCount = deliveriesCard.querySelectorAll('.placeholder-row').length;
+                const stopsBadge = deliveriesCard.querySelector('.content-card-badge');
+                if (stopsBadge) stopsBadge.innerText = `${stopsCount} Stops`;
+            }
+
+            showToast(`Accepted: ${productName} transport job!`, 'success');
+
+            // 4. Update deal state
+            const deal = dealsState.find(d => d.dealId === dealId);
+            if (deal) deal.transportAssigned = true;
+
+            // 5. ★ AUTOMATED DRIVER CHAT INJECTION (simulates async confirmation)
+            setTimeout(() => {
+                injectChatMessage(dealId, 'driver',
+                    `Salom! Driver Alisher K. has accepted the ${productName} transport route and is en route to pickup. Estimated arrival at warehouse in 45 minutes. 🚛`
+                );
+                injectChatMessage(dealId, 'system',
+                    `✅ Transport confirmed — Driver Alisher K. assigned to Deal ${dealId}`
+                );
+                showToast('🚛 Driver confirmed for ' + productName + '!', 'info', 4000);
+            }, 2500);
+        }
+
     </script>
 
 </body>
